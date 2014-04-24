@@ -31,12 +31,12 @@ class TestBenchmarkPlugin {
   @Before
   void setUp(){
     project = ProjectBuilder.builder().build();
-    project.apply plugin: 'JMHPlugin';
+    project.apply plugin: 'jmh';
   }
 	
   @Test
   public void checkPluginAppliedToProject() {
-    assertTrue("Project should have JMHplugin", project.getPlugins().hasPlugin("JMHPlugin"));
+    assertTrue("Project should have JMHPlugin", project.getPlugins().hasPlugin("jmh"));
   }
   
   @Test

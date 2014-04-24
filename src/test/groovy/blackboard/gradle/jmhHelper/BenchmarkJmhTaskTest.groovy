@@ -34,7 +34,7 @@ class BenchmarkJmhTaskTest {
 
   @Test
   public void testTaskExec() {
-    project.apply plugin: "JMHPlugin"
+    project.apply plugin: 'jmh'
     println "In the test";
     task.benchmarkJmh();
   }
