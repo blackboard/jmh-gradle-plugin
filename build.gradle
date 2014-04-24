@@ -2,10 +2,18 @@ apply plugin: 'groovy'
 
 description = 'Provides a Plugin to Gradle for running JMH Benchmarks'
 
+repositories {
+	mavenLocal()
+        mavenCentral()
+}
+
 dependencies {
   compile gradleApi()
   compile localGroovy()
+  testCompile 'org.openjdk.jmh:jmh-core:0.5.6';
+  testRuntime 'org.openjdk.jmh:jmh-core:0.5.6'; 
 }
+
 apply plugin:'eclipse'
 apply plugin:'idea'
 

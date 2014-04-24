@@ -1,34 +1,81 @@
 package blackboard.gradle.jmhHelper
 
+import org.gradle.api.Action;
 import org.gradle.api.Project
 import org.gradle.api.Plugin
-import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.plugins.JavaPluginConvention;
+//import org.openjdk.jmh.Main
+import org.gradle.api.artifacts.Configuration;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.concurrent.Callable;
 
 class JMHPlugin implements Plugin<Project> {
+    
+  public static final BENCHMARK_JMH_TASK_NAME = "benchmarkJmh";
+  public static final BENCHMARK_SOURCESET_NAME = "benchmark";
 
-  void apply(Project project){
-    //Set benchmarkSourceSet for project
+  private static final JMH_CONFIG_NAME = "jmh";
+  private static final JMH_RUNNER = "org.openjdk.jmh.Main";
+  private static final JMH_VERSION = "0.5.6";
+  //private static final JMH_VERSION = "1.0-SNAPSHOT";
+  
+  private Project project;
+  private benchmarkJmhTask;
+
+  void apply(Project project) {
+    // Applying the JavaPlugin gives access to the sourceSets object. 
     project.plugins.apply(JavaPlugin.class)
-    configureJMHBenchmarkLocation(project)
-    //Set the needed dependencies for the JMH Benchmark.java files here
-    configureDependencies(project)
-    //Actually add the task that does the work.
-    project.task('benchmarkJmh', type: BenchmarkJmhTask)    
+    this.project = project;
+
+    configureJMHBenchmarkLocation()
+    configureDependencies()
+    defineBenchmarkJmhTask()
   }
   
-  //Just copying and pasting the sourceSet block doens't work. 
-  void configureJMHBenchmarkLocation(Project project) {
-   project.getSourceSets().create('benchmark')
+  private void configureJMHBenchmarkLocation() {
+   SourceSet benchmark = project.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
+   //benchmark.setCompileClasspath(project.files(project.sourceSets.main.getOutput(), project.getConfigurations().getByName("benchmarkCompile")));
+   //benchmark.setRuntimeClasspath(project.files(benchmark.getOutput() , project.sourceSets.main.getOutput(), project.getConfigurations().getByName("benchmarkRuntime")));   
   }
 
-  void configureDependencies(Project project) {
-	project.dependencies {
-		benchmarkCompile "org.openjdk.jmh:jmh-core:0.5.6"
-        	benchmarkCompile "org.openjdk.jmh:jmh-generator-annprocess:0.5.6"
-        }
+  private void configureDependencies() {
+    project.dependencies {
+      benchmarkCompile "org.openjdk.jmh:jmh-core:$JMH_VERSION"
+      benchmarkCompile "org.openjdk.jmh:jmh-generator-annprocess:$JMH_VERSION"
+    }
+    project.configurations {
+      jmh  
+    }
+  }
+
+  private void defineBenchmarkJmhTask() {
+    /* JavaPluginConvention jpc = project.getConvention().getPlugin(JavaPluginConvention.class);
+    project.getTasks().withType(BenchmarkJmhTask.class, new Action<BenchmarkJmhTask>() {
+      public void execute(final BenchmarkJmhTask task) {
+        task.getConventionMapping.map("benchmarkClassesDir", new Callable<Object>() {
+          public Object call() throws Exception {
+            return jpc.getSourceSets().getByName("benchmark").getOutput().getClassesDir();
+          }
+        });
+        task.getConventionMapping.map("classpath", new Callable<Object>() {
+          public Object call() throws Exception {
+            return jpc.getSourceSets.getByName("benchmark").getRuntimeClasspath();
+          }
+        });
+        task.getConventionMapping.map("benchmarkSrcDirs", new Callable<Object>() {
+          public Object call() throws Exception {
+            return new ArrayList<File>(jpc.getSourceSets().getByName("benchmark").getJava().getSrcDirs());
+          }
+        });
+      }
+    }); */
+    benchmarkJmhTask = project.task(BENCHMARK_JMH_TASK_NAME, description: "Runs provided JMH Benchmark Tests", type: BenchmarkJmhTask);
+    benchmarkJmhTask.dependsOn(project.tasks.compileJava);
+    //benchmarkJmhTask.setMain(JMH_RUNNER);
   }
 
 
