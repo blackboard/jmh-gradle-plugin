@@ -78,6 +78,8 @@ class JMHPlugin implements Plugin<Project> {
     }); */
     benchmarkJmhTask = project.task(BENCHMARK_JMH_TASK_NAME, description: "Runs provided JMH Benchmark Tests", type: BenchmarkJmhTask);
     benchmarkJmhTask.dependsOn(project.tasks.compileJava);
+    benchmarkJmhTask.dependsOn(project.tasks.compileBenchmarkJava);
+
     //benchmarkJmhTask.setMain(JMH_RUNNER);
   }
 
