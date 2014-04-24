@@ -43,12 +43,15 @@ class JMHPlugin implements Plugin<Project> {
   }
 
   private void configureDependencies() {
+    project.repositories {
+        mavenCentral()
+    }
     project.dependencies {
       benchmarkCompile "org.openjdk.jmh:jmh-core:$JMH_VERSION"
       benchmarkCompile "org.openjdk.jmh:jmh-generator-annprocess:$JMH_VERSION"
     }
     project.configurations {
-      jmh  
+      jmh
     }
   }
 

@@ -32,7 +32,6 @@ class BenchmarkJmhTaskTest {
     assertTrue(task instanceof DefaultTask); 
   }
 
-  @Ignore
   @Test
   public void testTaskExec() {
     project.apply plugin: "JMHPlugin"

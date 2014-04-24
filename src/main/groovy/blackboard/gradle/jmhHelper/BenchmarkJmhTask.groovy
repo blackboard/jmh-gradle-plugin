@@ -33,9 +33,10 @@ class BenchmarkJmhTask extends DefaultTask /*JavaExec */{
     if (project.getConfigurations().getByName('benchmarkRuntime') == null) {
       throw new java.lang.RuntimeException("Missing the benchmarkRuntime configuration");
     }
-    jexec.classpath = project.sourceSets.benchmark.output + project.configurations.compile  /*project.configurations.runtimeClasspath*/
-    jexec.main = "$JMH_RUNNER"
-    jexec.args(['-h'])
+    jexec.main = JMH_RUNNER
+    jexec.classpath = project.sourceSets.benchmark.output + project.configurations.benchmarkRuntime
+    new File(outputFile).getParentFile().mkdirs()
+    jexec.args(['-o', outputFile])
     //jexec.setIgnoreExitValue(true);
     println "In the task, I really hope jexec can find the main class now.";
     jexec.exec();
@@ -46,7 +47,5 @@ class BenchmarkJmhTask extends DefaultTask /*JavaExec */{
     //args = ['-h'];
     // Options opt = new OptionsBuilder().include(".*").forks(1).build();
     //new Runner(opt).run();
-    
   }
-
 }
