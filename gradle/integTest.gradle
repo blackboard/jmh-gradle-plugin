@@ -1,0 +1,34 @@
+sourceSets {
+  integTest {
+    compileClasspath += main.output + test.output
+    runtimeClasspath += main.output + test.output
+  }
+}
+
+configurations {
+  integTestCompile.extendsFrom testCompile
+  integTestRuntime.extendsFrom testRuntime
+}
+
+task integTest(type: Test) {}
+check.dependsOn(integTest)
+
+plugins.withType(org.gradle.plugins.ide.idea.IdeaPlugin) {
+  idea {
+    module {
+      testSourceDirs += sourceSets.integTest.groovy.srcDirs
+      testSourceDirs += sourceSets.integTest.resources.srcDirs
+      scopes.TEST.plus.add(configurations.integTestCompile)
+      scopes.TEST.plus.add(configurations.integTestRuntime)
+    }
+  }
+}
+
+plugins.withType(org.gradle.plugins.ide.eclipse.EclipsePlugin) {
+  eclipse {
+    classpath {
+      plusConfigurations.add(configurations.integTestCompile)
+      plusConfigurations.add(configurations.integTestRuntime)
+    }
+  }
+}
