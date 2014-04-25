@@ -1,23 +1,12 @@
 package blackboard.gradle.jmhHelper
 
-import org.gradle.api.Project;
-import org.gradle.api.Plugin;
-import org.gradle.testfixtures.ProjectBuilder;
-import org.gradle.api.plugins.PluginContainer;
-import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetContainer;
+import com.blackboard.gradle.BenchmarkJmhTask
+import org.gradle.api.Project
+import org.gradle.testfixtures.ProjectBuilder
+import org.gradle.api.tasks.SourceSet
 import org.gradle.api.file.SourceDirectorySet;
-import org.gradle.api.Task;
-import org.gradle.api.tasks.TaskContainer;
-import org.gradle.api.UnknownTaskException;
-import org.gradle.api.file.FileCollection;
-import org.gradle.api.artifacts.DependencySet;
-import org.gradle.api.artifacts.Dependency;
-
-import java.util.Set;
-import java.util.HashSet;
-import java.io.File;
-
+import org.gradle.api.Task
+import org.gradle.api.UnknownTaskException
 import org.junit.Test;
 import org.junit.Ignore;
 import org.junit.Before;
@@ -82,17 +71,12 @@ class TestBenchmarkPlugin {
     }
     assertTrue(valid_sourceSet);
   }
-  
-  @Ignore
+
   @Test
   public void testSourceSetHasRuntimeClasspath() {
     SourceSet s = project.sourceSets.benchmark;
     assertNotNull(s); 
     assertFalse(s.runtimeClasspath.isEmpty());
-    println("The runtimeClassPath of the sourceSet benchmark is: ");
-    for (File f : s.runtimeClasspath) {
-      println f.getPath();
-    }
   }
 
   @Test

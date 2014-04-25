@@ -1,13 +1,13 @@
 package blackboard.gradle.jmhHelper
 
+import com.blackboard.gradle.BenchmarkJmhTask
 import org.gradle.api.Project;
-import org.gradle.testfixtures.ProjectBuilder;
-import org.gradle.api.tasks.JavaExec;
+import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.api.DefaultTask;
 
 import org.junit.Test;
-import org.junit.Before;
-import org.junit.Ignore;
+import org.junit.Before
+
 import static org.junit.Assert.*;
 
 
