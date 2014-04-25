@@ -1,20 +1,39 @@
-apply plugin: 'groovy'
+group 'com.blackboard.gradle'
+version '1.0-SNAPSHOT'
+description 'Gradle plugin for running JMH Benchmarks'
 
-description = 'Provides a Plugin to Gradle for running JMH Benchmarks'
+apply plugin: 'java'
+apply plugin: 'groovy'
+apply plugin: 'idea'
+apply plugin: 'errorprone'
+apply plugin: 'versions'
+
+apply from: 'gradle/dependencies.gradle'
+apply from: 'gradle/idea.gradle'
+apply from: 'gradle/integTest.gradle'
 
 repositories {
-	mavenLocal()
-        mavenCentral()
+  mavenCentral()
 }
 
 dependencies {
   compile gradleApi()
-  compile localGroovy()
-  testCompile 'org.openjdk.jmh:jmh-core:0.5.6';
-  testRuntime 'org.openjdk.jmh:jmh-core:0.5.6'; 
+  testCompile libraries.jmh
+  testCompile libraries.spock
 }
 
-apply plugin:'eclipse'
-apply plugin:'idea'
+task wrapper(type: Wrapper) { gradleVersion = '1.11' }
 
-version='1.0-SNAPSHOT'
+defaultTasks 'build'
+
+buildscript {
+  repositories {
+    maven { url 'https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo' }
+    mavenCentral()
+  }
+
+  dependencies {
+    classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.2'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-2'
+  }
+}
