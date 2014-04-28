@@ -33,10 +33,16 @@ class BenchmarkJmhTaskTest {
   }
 
   @Test
-  public void testTaskExec() {
+  public void testHelpArg() {
     project.apply plugin: 'jmh'
-    println "In the test";
+    project.setProperty("help", "");
     task.benchmarkJmh();
   }
-  
+
+  @Test
+  public void testDifferentFileLocation(){
+     project.apply plugin: 'jmh'
+     project.setProperty("-o", "some_random_text.txt");
+     task.benchmarkJmh();
+   }
 } 

@@ -8,7 +8,6 @@ import org.gradle.api.file.SourceDirectorySet;
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
 import org.junit.Test;
-import org.junit.Ignore;
 import org.junit.Before;
 import static org.junit.Assert.*;
 
