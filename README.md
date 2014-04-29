@@ -22,12 +22,12 @@ all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*
 4. Add the dependency to your build.gradle file for your project:
 
 >   `buildscript {
->   `repositories {
->   `mavenLocal()
->       `}
->   `dependencies {
->   `classpath group: 'ChosenGroupHere', name: 'JMHHelper', version: 'version number here'
->   `}
->   `}
->   `apply plugin: com.blackboard.gradle.JMHPlugin
+>   repositories {
+>   mavenLocal()
+>       }
+>   dependencies {
+>   classpath group: 'ChosenGroupHere', name: 'JMHHelper', version: 'version number here'
+>   }
+>   }
+>   apply plugin: com.blackboard.gradle.JMHPlugin`
 
