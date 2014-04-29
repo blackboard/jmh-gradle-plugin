@@ -29,5 +29,5 @@ all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*
             classpath group: 'ChosenGroupHere', name: 'JMHHelper', version: 'version number here'
         \}
     \}
-    apply plugin: com.blackboard.gradle.JMHPlugin`
+    apply plugin: com.blackboard.gradle.JMHPlugin
 
