@@ -1,16 +1,12 @@
 package com.blackboard.gradle;
 
 import groovy.lang.Closure;
-import org.codehaus.groovy.runtime.DefaultGroovyMethods;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.plugins.JavaPluginConvention;
-import org.gradle.api.tasks.SourceSet;
-
-import java.util.LinkedHashMap;
 
 public class JMHPlugin implements Plugin<Project> {
 

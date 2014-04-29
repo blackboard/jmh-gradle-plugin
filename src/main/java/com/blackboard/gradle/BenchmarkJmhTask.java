@@ -40,23 +40,21 @@ public class BenchmarkJmhTask extends DefaultTask {
     FileCollection fcClasspath = jpc.getSourceSets().getByName("benchmark").getRuntimeClasspath();
     fcClasspath.add(jpc.getSourceSets().getByName("benchmark").getOutput());
     jexec.setClasspath(fcClasspath);
-
     //Sends arguments defined in the gradle syntax of -P to the JMH runner. Example: -PcustomOutputFile="/my_path/text.txt"
     jexec.setArgs(processArgs());
-
     jexec.exec();
   }
 
   private ArrayList<String> processArgs(){
     ArrayList<String> toJmhRunner = new ArrayList<>();
     Project pj = this.getProject();
-
     HashSet<String> props = new HashSet<>(pj.getProperties().keySet());
     /* Changes props to be the set-intersection of all project properties and VALID_JMH_ARGS. This gives me only the
      * the arguments passed into the project that are JMH arguments. (As opposed to all project arguments that may
      * exist from gradle doing its magic */
     props.retainAll(VALID_JMH_ARGS);
 
+    //Passes properties specified on the commandline to the list to be given to jmhRunner.
     for (String prop : props){
       if (!prop.equals("help") || !prop.equals("customOutputFile")) {
         toJmhRunner.add(prop);
@@ -64,12 +62,7 @@ public class BenchmarkJmhTask extends DefaultTask {
       }
     }
 
-    /*if (this.getProject().hasProperty("customOutputFile")) {
-      toJmhRunner.addAll(processOutputFileLocation((String) this.getProject().getProperties().get("customOutputFile")));
-    } else { //Project doesn't have a customOutput file location specified, so use the default location.
-      toJmhRunner.addAll(processOutputFileLocation(defaultOutputFile));
-    } */
-
+    //Help is displayed in the console, clears all other options.
     if (pj.hasProperty("help")){
       displayUsage();
       toJmhRunner.clear();
