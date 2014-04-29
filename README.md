@@ -21,7 +21,7 @@ all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*
 3. Install the jar file created from the gdl jar task into your local maven repository.
 4. Add the dependency to your build.gradle file for your project.
 
-    buildscript \{
+```    buildscript \{
         repositories \{
             mavenLocal\(\)
        \}
@@ -30,4 +30,4 @@ all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*
         \}
     \}
     apply plugin: com.blackboard.gradle.JMHPlugin
-
+```
