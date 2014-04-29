@@ -39,10 +39,4 @@ class BenchmarkJmhTaskTest {
     task.benchmarkJmh();
   }
 
-  @Test
-  public void testDifferentFileLocation(){
-     project.apply plugin: 'jmh'
-     project.setProperty("-o", "some_random_text.txt");
-     task.benchmarkJmh();
-   }
 } 

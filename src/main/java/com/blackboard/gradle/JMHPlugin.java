@@ -69,7 +69,7 @@ public class JMHPlugin implements Plugin<Project> {
     });
   }
 
-  private void defineBenchmarkJmhTask() throws UnknownTaskException {
+  private void defineBenchmarkJmhTask() {
     Task benchmarkJmhTask = project.getTasks().create(BENCHMARK_JMH_TASK_NAME, BenchmarkJmhTask.class);
     benchmarkJmhTask.setDescription("Runs JMH benchmark tasks");
     benchmarkJmhTask.dependsOn(project.getTasks().getByName("compileJava"));

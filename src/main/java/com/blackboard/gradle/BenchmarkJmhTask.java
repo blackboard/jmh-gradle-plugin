@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.HashSet;
 
 
+
 /**
  * This task is used to run JMH benchmark files. By default, this task runs every
  * benchmark for a project in the src/benchmark/java/... folder.
@@ -21,16 +22,13 @@ import java.util.HashSet;
 public class BenchmarkJmhTask extends DefaultTask {
 
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
-  private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + "/jmh-output.txt";
+  private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
 
   private final HashSet<String> VALID_JMH_ARGS = new HashSet<>(Arrays.asList("-bm", "-bs", "-e","-f", "-foe","-gc", "-h", "-i", "-jvm", "-jvmArgs", "-jvmArgsAppend", "-jvmArgsPrepend", "-l", "-lprof", "-lrf", "-o", "-p", "-prof", "-r", "-rf", "-rff", "-si", "-t","-tg","-tu","-v", "-wbs", "-wf", "-wi", "-wm", "-wmb"));
 
-
-  private static final String[] allowedArgs = {"customOutputFile", "help", "-bm"};
-
   @TaskAction
-  public void benchmarkJmh() throws UnknownDomainObjectException {
+  public void benchmarkJmh() {
 
     jexec.setMain(JMH_RUNNER);
 
@@ -40,7 +38,7 @@ public class BenchmarkJmhTask extends DefaultTask {
     FileCollection fcClasspath = jpc.getSourceSets().getByName("benchmark").getRuntimeClasspath();
     fcClasspath.add(jpc.getSourceSets().getByName("benchmark").getOutput());
     jexec.setClasspath(fcClasspath);
-    //Sends arguments defined in the gradle syntax of -P to the JMH runner. Example: -PcustomOutputFile="/my_path/text.txt"
+    //Sends arguments defined in the gradle syntax of -P to the JMH runner. Example: -P-o="/my_path/text.txt"
     jexec.setArgs(processArgs());
     jexec.exec();
   }
@@ -54,12 +52,27 @@ public class BenchmarkJmhTask extends DefaultTask {
      * exist from gradle doing its magic */
     props.retainAll(VALID_JMH_ARGS);
 
-    //Passes properties specified on the commandline to the list to be given to jmhRunner.
+
+    /*Adds args and their values to the list to be given to JMHRunner. (Minus the help and -o property, as I'm doing
+    * my own manipulation of those arguments.) */
+    props.remove("-o");
+    props.remove("help");
     for (String prop : props){
-      if (!prop.equals("help") || !prop.equals("customOutputFile")) {
+      if (!prop.equals("help") || !prop.equals("-o") ) {
         toJmhRunner.add(prop);
         toJmhRunner.add((String) pj.getProperties().get(prop));
       }
+    }
+
+    //TODO: The create logic to change the output to a safe location other than the project build directory.
+    if (pj.hasProperty("-o")){
+      String fName = pj.getBuildDir() + File.separator + pj.getProperties().get("-o");
+      new File(fName);
+      toJmhRunner.add("-o");
+      toJmhRunner.add(fName);
+    } else {
+      new File(defaultOutputFile).getParentFile().mkdirs();
+      toJmhRunner.addAll(new ArrayList<>(Arrays.asList("-o", defaultOutputFile)));
     }
 
     //Help is displayed in the console, clears all other options.
@@ -67,17 +80,6 @@ public class BenchmarkJmhTask extends DefaultTask {
       displayUsage();
       toJmhRunner.clear();
       toJmhRunner.add("-h");
-    }
-
-
-    //TODO: The create logic to change the output to a safe location other than the project build directory.
-    if (pj.hasProperty("-o")){
-      System.err.println("Trying to set custom output location!");
-      System.err.println("Custom output locations appear to freak-out gradle.");
-      System.err.println((String) pj.getProperties().get("-o"));
-    } else {
-      new File(defaultOutputFile).getParentFile().mkdirs();
-      toJmhRunner.addAll(new ArrayList<>(Arrays.asList("-o", defaultOutputFile)));
     }
 
     return toJmhRunner;
@@ -88,11 +90,6 @@ public class BenchmarkJmhTask extends DefaultTask {
     System.out.println("For this task to function, benchmarks must be placed in src/benchmark/java/<your own folder structure here>");
     System.out.println("Arguments to this task are defined with the gradle -P syntax.");
     System.out.println("By default, the output of JMH benchmarks are located in jmh-output.txt in the build directory of this project.");
-    System.out.println("Arguments to this task are as follows:");
-    for (String s : allowedArgs){
-      System.out.println(s);
-    }
   }
-
 
 }
