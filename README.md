@@ -6,17 +6,23 @@ A gradle plugin designed to run JMH benchmarks associated with a project. This p
 3. Provide a gradle task that can be invoked on the command line to run all benchmarks associated with a project.
 
 ## How to use the Plugin ##
+
 ```
 > gdl benchmarkJmh
 ```
+
 This task, by default, will run all JMH benchmarks found in the src/benchmark/java/... folder, and,
-by default, will produce an output text file, named jmh-output.txt, in the project build directory.
+by default, will produce an output text file, named `jmh-output.txt`, in the project build directory.
 
 ### Where to put benchmarks ###
 The JMH Gradle plugin uses the standard gradle sourceSet layout for managing the location of its source-files. Therefore,
 all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*
 
 
+### Installing the plugin ###
+The plugin is located in maven.pd.local
+If you are connected to blackboard's network, adding the following buildscript block to your project under test will
+give you access to the benchmarkJmh task.
 
 ```
 buildscript {
@@ -31,3 +37,26 @@ buildscript {
 }
     apply plugin: com.blackboard.gradle.JMHPlugin
 ```
+### Command Line Options ###
+Command line options are specified as gradle project parameters, prefaced with -P.
+To see which parameters are accepted by JMH, run
+
+```gdl benchmarkJmh -Phelp```
+
+All the commands that JMH supports can be specified in this manner. (Not all commands have been tested, your mileage may vary)
+For example, specifying the name of the output file can be done by doing the following:
+
+`
+gdl benchmarkJmh -P-o="different_name.txt"
+`
+
+>Caution, the output file option just changes the name, not the directory of the output file.
+
+Multiple options may be specified:
+
+`gdl benchmarkJmh -P-wi=3 -P-i=2 -P-o="different_name.txt"`
+
+
+In this case, the number of warmup iterations be test has been changed to 3,  
+the number of measurement iterations have been changed to 2,
+and the output of the tests is going to a file named `different_name.txt`
