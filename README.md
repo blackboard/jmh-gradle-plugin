@@ -6,11 +6,11 @@ A gradle plugin designed to run JMH benchmarks associated with a project. This p
 3. Provide a gradle task that can be invoked on the command line to run all benchmarks associated with a project.
 
 ## How to use the Plugin ##
-
-gdl benchmarkJmh
-
+```
+> gdl benchmarkJmh
+```
 This task, by default, will run all JMH benchmarks found in the src/benchmark/java/... folder, and,
-by default, will produce an output text file, named jmh-output.txt ,in the project build directory.
+by default, will produce an output text file, named jmh-output.txt, in the project build directory.
 
 ### Where to put benchmarks ###
 The JMH Gradle plugin uses the standard gradle sourceSet layout for managing the location of its source-files. Therefore,

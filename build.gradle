@@ -4,9 +4,11 @@ description 'Gradle plugin for running JMH Benchmarks'
 
 apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'jacoco'
 apply plugin: 'idea'
 apply plugin: 'errorprone'
 apply plugin: 'versions'
+apply plugin: 'maven'
 
 apply from: 'gradle/dependencies.gradle'
 apply from: 'gradle/idea.gradle'
@@ -35,5 +37,25 @@ buildscript {
   dependencies {
     classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.2'
     classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-2'
+  }
+}
+
+uploadArchives {
+  def nexusUsername = "$System.env.NEXUS_USERNAME".trim()
+  def nexusPassword = "$System.env.NEXUS_PASSWORD".trim()
+
+  if (project.hasProperty("jenkinsMavenUsername")) {
+    nexusUsername = jenkinsMavenUsername
+  }
+
+  if (project.hasProperty("jenkinsMavenPassword")) {
+    nexusPassword = jenkinsMavenPassword
+  }
+  repositories {
+    mavenDeployer {
+      repository( url : "http://maven.pd.local/content/repositories/snapshots" ) {
+        authentication( userName: nexusUsername, password: nexusPassword )
+      }
+    }
   }
 }
