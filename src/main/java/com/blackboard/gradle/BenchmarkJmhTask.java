@@ -75,6 +75,20 @@ public class BenchmarkJmhTask extends DefaultTask {
       toJmhRunner.addAll(new ArrayList<>(Arrays.asList("-o", defaultOutputFile)));
     }
 
+
+    //WARN: Blackboard specific code to follow inside of this if statement.
+    if (pj.hasProperty("bbHome") && pj.hasProperty("bbTestServiceConfig")){
+      int index = toJmhRunner.indexOf("-jvm");
+      if (index == -1){
+        toJmhRunner.add("-jvm");
+        toJmhRunner.add( (String) pj.getProperties().get("bbTestServiceConfig"));
+      } else {
+        toJmhRunner.add(index+1, (String) pj.getProperties().get("bbTestServiceConfig"));
+      }
+    }
+
+    //Otherwise, we are in some other project, not depending on a gradle.properties file.
+
     //Help is displayed in the console, clears all other options.
     if (pj.hasProperty("help")){
       displayUsage();
