@@ -21,6 +21,9 @@ public class JMHPlugin implements Plugin<Project> {
   private static final String JMH_CONFIG_NAME = "jmh";
   private static final String JMH_VERSION = "0.5.6";
 
+  private static final String COMPILE_BENCHMARK_NAME = "benchmarkCompile";
+  private static final String RUNTIME_BENCHMARK_NAME = "benchmarkRuntime";
+
 
   protected Project project;
 
@@ -39,8 +42,13 @@ public class JMHPlugin implements Plugin<Project> {
 
   private void configureJMHBenchmarkLocation(JavaPluginConvention pluginConvention) {
     SourceSet benchmark = pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
-    SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("main");
-    benchmark.getCompileClasspath().plus(mainSourceSet.getOutput());
+    SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+
+    benchmark.setCompileClasspath(this.project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(COMPILE_BENCHMARK_NAME)));
+    benchmark.setRuntimeClasspath(this.project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME)));
+
+    //FileCollection mainClasspath = project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
+    //benchmark.getCompileClasspath().plus(mainSourceSet.getOutput());
   }
 
   private void configureDependencies() {
@@ -57,7 +65,7 @@ public class JMHPlugin implements Plugin<Project> {
     project.dependencies(new Closure<Object>(this, this) {
       public Object doCall(Object it) {
         invokeMethod("benchmarkCompile", new Object[]{"org.openjdk.jmh:jmh-core:" + JMH_VERSION});
-        invokeMethod("compile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
+        //invokeMethod("compile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
         return invokeMethod("benchmarkCompile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
       }
 

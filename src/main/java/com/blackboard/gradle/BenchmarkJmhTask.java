@@ -36,7 +36,7 @@ public class BenchmarkJmhTask extends DefaultTask {
      * as well as the runtime-classpath of the benchmarks. */
     JavaPluginConvention jpc = this.getProject().getConvention().getPlugin(JavaPluginConvention.class);
     FileCollection fcClasspath = jpc.getSourceSets().getByName("benchmark").getRuntimeClasspath();
-    fcClasspath.add(jpc.getSourceSets().getByName("benchmark").getOutput());
+    //fcClasspath.add(jpc.getSourceSets().getByName("benchmark").getOutput());
     jexec.setClasspath(fcClasspath);
     //Sends arguments defined in the gradle syntax of -P to the JMH runner. Example: -P-o="/my_path/text.txt"
     jexec.setArgs(processArgs());
