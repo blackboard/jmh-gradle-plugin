@@ -52,7 +52,7 @@ class TestBenchmarkPlugin {
         break;
       }
     }
-    assertNotNull("Expected benchmark sourceSets to be present", tar);
+    assertNotNull("Expected benchmark sourceSet to be present", tar);
 
     /* Verifying that the benchmark sourceSet actually refers to a valid location for JMH benchmarks.
        By our convention, this will be src/benchmark/java/<more folders forming packaage names here>.
@@ -88,11 +88,6 @@ class TestBenchmarkPlugin {
     }
     assertNotNull(t);
     assertNotNull(t.getDescription());
-  }
-
-  @Test
-  public void testbenchmarkCompileClasspathHasMainDeps(){
-
   }
 
 }
