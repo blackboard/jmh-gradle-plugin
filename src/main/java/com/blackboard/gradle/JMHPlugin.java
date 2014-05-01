@@ -1,6 +1,7 @@
 package com.blackboard.gradle;
 
 import groovy.lang.Closure;
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -38,6 +39,8 @@ public class JMHPlugin implements Plugin<Project> {
 
   private void configureJMHBenchmarkLocation(JavaPluginConvention pluginConvention) {
     SourceSet benchmark = pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
+    SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("main");
+    benchmark.getCompileClasspath().plus(mainSourceSet.getOutput());
   }
 
   private void configureDependencies() {
@@ -83,9 +86,13 @@ public class JMHPlugin implements Plugin<Project> {
 
 
 
-    //SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("main");
+
+
     Configuration benchmarkCompile = this.project.getConfigurations().getByName("benchmarkCompile");
     benchmarkCompile.extendsFrom(this.project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
+
+
+
 
   }
 

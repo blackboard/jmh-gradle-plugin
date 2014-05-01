@@ -90,4 +90,9 @@ class TestBenchmarkPlugin {
     assertNotNull(t.getDescription());
   }
 
+  @Test
+  public void testbenchmarkCompileClasspathHasMainDeps(){
+
+  }
+
 }
