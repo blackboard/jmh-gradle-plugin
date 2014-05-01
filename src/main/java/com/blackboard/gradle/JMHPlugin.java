@@ -5,15 +5,13 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
-import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.SourceSet;
-import org.gradle.api.tasks.SourceSetOutput;
 
-import java.io.File;
-import java.util.HashSet;
+
+
 
 public class JMHPlugin implements Plugin<Project> {
 
@@ -76,20 +74,18 @@ public class JMHPlugin implements Plugin<Project> {
 
     });
 
-    SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("main");
-    FileCollection mainCompileFileCollection = mainSourceSet.getCompileClasspath();
-    FileCollection mainRuntimeFileCollection = mainSourceSet.getRuntimeClasspath();
-    FileCollection mainOutputFileCollection = mainSourceSet.getOutput().getDirs();
+//    sourceSets {
+//      benchmark {
+//        compileClasspath += main.output + test.output
+//        runtimeClasspath += main.output + test.output
+//      }
+//    }
 
-    //Give the main compile dependencies to the benchmarkJmhCompile time.
-    SourceSet jmhSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("benchmark");
-    FileCollection jmhCompileClassPathFileCollection = jmhSourceSet.getCompileClasspath().plus(mainCompileFileCollection);
-    jmhSourceSet.setCompileClasspath(jmhCompileClassPathFileCollection);
 
-    //Set Runtime classpath
-    FileCollection jmhRuntime = jmhSourceSet.getRuntimeClasspath().plus(mainRuntimeFileCollection).plus(mainOutputFileCollection).plus(jmhSourceSet.getCompileClasspath());
-    jmhSourceSet.setRuntimeClasspath(jmhRuntime);
 
+    //SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("main");
+    Configuration benchmarkCompile = this.project.getConfigurations().getByName("benchmarkCompile");
+    benchmarkCompile.extendsFrom(this.project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
 
   }
 
