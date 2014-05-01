@@ -65,7 +65,7 @@ public class JMHPlugin implements Plugin<Project> {
     project.dependencies(new Closure<Object>(this, this) {
       public Object doCall(Object it) {
         invokeMethod("benchmarkCompile", new Object[]{"org.openjdk.jmh:jmh-core:" + JMH_VERSION});
-        //invokeMethod("compile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
+        invokeMethod("compile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
         return invokeMethod("benchmarkCompile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
       }
 
