@@ -4,9 +4,16 @@ import groovy.lang.Closure;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
+import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPlugin;
-import org.gradle.api.UnknownTaskException;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetOutput;
+
+import java.io.File;
+import java.util.HashSet;
 
 public class JMHPlugin implements Plugin<Project> {
 
@@ -16,7 +23,7 @@ public class JMHPlugin implements Plugin<Project> {
   private static final String JMH_VERSION = "0.5.6";
 
 
-  private Project project;
+  protected Project project;
 
   public void apply(Project project) {
     // Applying the JavaPlugin gives access to the sourceSets object.
@@ -32,7 +39,7 @@ public class JMHPlugin implements Plugin<Project> {
   }
 
   private void configureJMHBenchmarkLocation(JavaPluginConvention pluginConvention) {
-     pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
+    SourceSet benchmark = pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
   }
 
   private void configureDependencies() {
@@ -68,6 +75,22 @@ public class JMHPlugin implements Plugin<Project> {
       }
 
     });
+
+    SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("main");
+    FileCollection mainCompileFileCollection = mainSourceSet.getCompileClasspath();
+    FileCollection mainRuntimeFileCollection = mainSourceSet.getRuntimeClasspath();
+    FileCollection mainOutputFileCollection = mainSourceSet.getOutput().getDirs();
+
+    //Give the main compile dependencies to the benchmarkJmhCompile time.
+    SourceSet jmhSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName("benchmark");
+    FileCollection jmhCompileClassPathFileCollection = jmhSourceSet.getCompileClasspath().plus(mainCompileFileCollection);
+    jmhSourceSet.setCompileClasspath(jmhCompileClassPathFileCollection);
+
+    //Set Runtime classpath
+    FileCollection jmhRuntime = jmhSourceSet.getRuntimeClasspath().plus(mainRuntimeFileCollection).plus(mainOutputFileCollection).plus(jmhSourceSet.getCompileClasspath());
+    jmhSourceSet.setRuntimeClasspath(jmhRuntime);
+
+
   }
 
   private void defineBenchmarkJmhTask() {
