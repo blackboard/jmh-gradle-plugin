@@ -78,15 +78,15 @@ public class BenchmarkJmhTask extends DefaultTask {
 
 
     //WARN: Blackboard specific code to follow inside of this if statement.
-//    if (pj.hasProperty("bbTestServiceConfig") && pj.hasProperty("bbHome")){
-//     int index = toJmhRunner.indexOf("-jvmArgs");
-//      if (index == -1){
-//        toJmhRunner.add("-jvmArgs");
-//        toJmhRunner.add( (String) pj.getProperties().get("bbTestServiceConfig"));
-//      } else {
-//        toJmhRunner.add(index+1, (String) pj.getProperties().get("bbTestServiceConfig"));
-//      }
-//    }
+    if (pj.hasProperty("bbTestServiceConfig") && pj.hasProperty("bbHome")){
+     int index = toJmhRunner.indexOf("-jvmArgs");
+      if (index == -1){
+        toJmhRunner.add("-jvmArgs");
+        toJmhRunner.add( (String) pj.getProperties().get("bbTestServiceConfig"));
+      } else {
+        toJmhRunner.add(index+1, (String) pj.getProperties().get("bbTestServiceConfig"));
+      }
+    }
 
     //Otherwise, we are in some other project, not depending on a gradle.properties file.
 
