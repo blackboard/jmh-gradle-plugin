@@ -82,9 +82,9 @@ public class BenchmarkJmhTask extends DefaultTask {
      int index = toJmhRunner.indexOf("-jvmArgs");
       if (index == -1){
         toJmhRunner.add("-jvmArgs");
-        toJmhRunner.add( (String) pj.getProperties().get("bbTestServiceConfig"));
+        toJmhRunner.add("-Dbbservices_config=" +(String) pj.getProperties().get("bbTestServiceConfig"));
       } else {
-        toJmhRunner.add(index+1, (String) pj.getProperties().get("bbTestServiceConfig"));
+        toJmhRunner.add(index+1,"-Dbbservices_config=" + (String) pj.getProperties().get("bbTestServiceConfig"));
       }
     }
 
