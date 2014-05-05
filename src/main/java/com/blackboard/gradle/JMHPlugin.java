@@ -24,14 +24,12 @@ public class JMHPlugin implements Plugin<Project> {
   private static final String COMPILE_BENCHMARK_NAME = "benchmarkCompile";
   private static final String RUNTIME_BENCHMARK_NAME = "benchmarkRuntime";
 
-
   protected Project project;
 
   public void apply(Project project) {
     // Applying the JavaPlugin gives access to the sourceSets object.
     this.project = project;
     this.project.getPlugins().apply(JavaPlugin.class);
-
 
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
 
@@ -41,11 +39,12 @@ public class JMHPlugin implements Plugin<Project> {
   }
 
   private void configureJMHBenchmarkLocation(JavaPluginConvention pluginConvention) {
-    SourceSet benchmark = pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
+    SourceSet benchmarkSourceSet = pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
     SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 
-    benchmark.setCompileClasspath(this.project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(COMPILE_BENCHMARK_NAME)));
-    benchmark.setRuntimeClasspath(this.project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME)));
+    benchmarkSourceSet.setCompileClasspath(this.project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(COMPILE_BENCHMARK_NAME)));
+    benchmarkSourceSet.setRuntimeClasspath(this.project.files(mainSourceSet.getOutput(), benchmarkSourceSet.getOutput()
+        ,project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME)));
 
     //FileCollection mainClasspath = project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
     //benchmark.getCompileClasspath().plus(mainSourceSet.getOutput());
@@ -92,15 +91,8 @@ public class JMHPlugin implements Plugin<Project> {
 //      }
 //    }
 
-
-
-
-
     Configuration benchmarkCompile = this.project.getConfigurations().getByName("benchmarkCompile");
     benchmarkCompile.extendsFrom(this.project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
-
-
-
 
   }
 
