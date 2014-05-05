@@ -59,7 +59,7 @@ class TestBenchmarkPlugin {
        This test is currently not robust, it is just looking for "benchmark" in a filepath somewhere, and 
        can easily be fooled if someone makes a package named benchmark. This is because I don't want to do
        OS detection to determine filepaths in other operating systems. */
-    
+
     SourceDirectorySet sd = tar.getAllSource();
     HashSet<File> fs = sd.getSrcDirs();
     boolean valid_sourceSet = false;
