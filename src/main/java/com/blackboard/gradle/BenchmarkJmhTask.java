@@ -22,6 +22,9 @@ import java.util.HashSet;
 public class BenchmarkJmhTask extends DefaultTask {
 
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
+  //private static final String DEFAULT_INIT_HEAP_SIZE = "-Xms2048m";
+  //private static final String DEFAULT_MAX_HEAP_SIZE = "-Xms2048m";
+  private static final String OS_TYPE = System.getProperty("os.name").contains("windows")? "windows" : "linux" ;
   private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
 
@@ -49,7 +52,7 @@ public class BenchmarkJmhTask extends DefaultTask {
     HashSet<String> props = new HashSet<>(pj.getProperties().keySet());
     /* Changes props to be the set-intersection of all project properties and VALID_JMH_ARGS. This gives me only the
      * the arguments passed into the project that are JMH arguments. (As opposed to all project arguments that may
-     * exist from gradle doing its magic */
+     * exist from gradle doing its magic) */
     props.retainAll(VALID_JMH_ARGS);
 
 
@@ -58,10 +61,8 @@ public class BenchmarkJmhTask extends DefaultTask {
     props.remove("-o");
     props.remove("help");
     for (String prop : props){
-      if (!prop.equals("help") || !prop.equals("-o") ) {
         toJmhRunner.add(prop);
         toJmhRunner.add((String) pj.getProperties().get(prop));
-      }
     }
 
     //TODO: The create logic to change the output to a safe location other than the project build directory.
@@ -76,11 +77,11 @@ public class BenchmarkJmhTask extends DefaultTask {
     }
 
 
-//    //WARN: Blackboard specific code to follow inside of this if statement.
-//    if (pj.hasProperty("bbHome") && pj.hasProperty("bbTestServiceConfig")){
-//      int index = toJmhRunner.indexOf("-jvm");
+    //WARN: Blackboard specific code to follow inside of this if statement.
+//    if (pj.hasProperty("bbTestServiceConfig") && pj.hasProperty("bbHome")){
+//     int index = toJmhRunner.indexOf("-jvmArgs");
 //      if (index == -1){
-//        toJmhRunner.add("-jvm");
+//        toJmhRunner.add("-jvmArgs");
 //        toJmhRunner.add( (String) pj.getProperties().get("bbTestServiceConfig"));
 //      } else {
 //        toJmhRunner.add(index+1, (String) pj.getProperties().get("bbTestServiceConfig"));

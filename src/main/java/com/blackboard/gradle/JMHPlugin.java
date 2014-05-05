@@ -43,11 +43,9 @@ public class JMHPlugin implements Plugin<Project> {
     SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 
     benchmarkSourceSet.setCompileClasspath(this.project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(COMPILE_BENCHMARK_NAME)));
-    benchmarkSourceSet.setRuntimeClasspath(this.project.files(mainSourceSet.getOutput(), benchmarkSourceSet.getOutput()
-        ,project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME)));
+    benchmarkSourceSet.setRuntimeClasspath(this.project.files(mainSourceSet.getOutput(), benchmarkSourceSet.getOutput(),
+                                           project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME)));
 
-    //FileCollection mainClasspath = project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
-    //benchmark.getCompileClasspath().plus(mainSourceSet.getOutput());
   }
 
   private void configureDependencies() {
@@ -84,16 +82,8 @@ public class JMHPlugin implements Plugin<Project> {
 
     });
 
-//    sourceSets {
-//      benchmark {
-//        compileClasspath += main.output + test.output
-//        runtimeClasspath += main.output + test.output
-//      }
-//    }
-
     Configuration benchmarkCompile = this.project.getConfigurations().getByName("benchmarkCompile");
     benchmarkCompile.extendsFrom(this.project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
-
   }
 
   private void defineBenchmarkJmhTask() {
