@@ -22,8 +22,8 @@ import java.util.HashSet;
 public class BenchmarkJmhTask extends DefaultTask {
 
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
-  private static final String DEFAULT_INIT_HEAP_SIZE = "-Xms2048m";
-  private static final String DEFAULT_MAX_HEAP_SIZE = "-Xms2048m";
+  //private static final String DEFAULT_INIT_HEAP_SIZE = "-Xms2048m";
+  //private static final String DEFAULT_MAX_HEAP_SIZE = "-Xms2048m";
   private static final String OS_TYPE = System.getProperty("os.name").contains("windows")? "windows" : "linux" ;
   private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
@@ -83,12 +83,12 @@ public class BenchmarkJmhTask extends DefaultTask {
       if (index == -1){
         toJmhRunner.add("-jvmArgs");
         toJmhRunner.add("-Dbbservices_config=" +(String) pj.getProperties().get("bbTestServiceConfig"));
-        toJmhRunner.add(DEFAULT_INIT_HEAP_SIZE);
-        toJmhRunner.add(DEFAULT_MAX_HEAP_SIZE);
+        //toJmhRunner.add(DEFAULT_INIT_HEAP_SIZE);
+        //toJmhRunner.add(DEFAULT_MAX_HEAP_SIZE);
       } else {
         toJmhRunner.add(index+ 1,"-Dbbservices_config=" + (String) pj.getProperties().get("bbTestServiceConfig"));
-        toJmhRunner.add(index + 1, DEFAULT_INIT_HEAP_SIZE);
-        toJmhRunner.add(index + 1, DEFAULT_MAX_HEAP_SIZE);
+        //toJmhRunner.add(index + 1, DEFAULT_INIT_HEAP_SIZE);
+        //toJmhRunner.add(index + 1, DEFAULT_MAX_HEAP_SIZE);
       }
     }
 
