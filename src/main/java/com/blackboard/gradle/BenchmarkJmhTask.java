@@ -101,7 +101,7 @@ public class BenchmarkJmhTask extends DefaultTask {
 
     //Help is displayed in the console, clears all other options.
     if (pj.hasProperty("help")){
-      displayUsage();cd
+      displayUsage();
       toJmhRunner.clear();
       toJmhRunner.add("-h");
     }
