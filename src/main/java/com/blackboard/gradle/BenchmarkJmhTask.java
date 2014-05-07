@@ -2,7 +2,6 @@ package com.blackboard.gradle;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
-import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.JavaExec;
@@ -22,8 +21,6 @@ import java.util.HashSet;
 public class BenchmarkJmhTask extends DefaultTask {
 
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
-  //private static final String DEFAULT_INIT_HEAP_SIZE = "-Xms2048m";
-  //private static final String DEFAULT_MAX_HEAP_SIZE = "-Xms2048m";
   private static final String OS_TYPE = System.getProperty("os.name").contains("windows")? "windows" : "linux" ;
   private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
@@ -39,14 +36,24 @@ public class BenchmarkJmhTask extends DefaultTask {
      * as well as the runtime-classpath of the benchmarks. */
     JavaPluginConvention jpc = this.getProject().getConvention().getPlugin(JavaPluginConvention.class);
     FileCollection fcClasspath = jpc.getSourceSets().getByName("benchmark").getRuntimeClasspath();
-    //fcClasspath.add(jpc.getSourceSets().getByName("benchmark").getOutput());
     jexec.setClasspath(fcClasspath);
     //Sends arguments defined in the gradle syntax of -P to the JMH runner. Example: -P-o="/my_path/text.txt"
-    jexec.setArgs(processArgs());
+    jexec.setArgs(processJmhArgs());
+    //Sets the JVM specific args.
+    jexec.setJvmArgs(processJVMargs());
     jexec.exec();
   }
 
-  private ArrayList<String> processArgs(){
+  private ArrayList<String> processJVMargs(){
+    ArrayList<String> jvmArgs = new ArrayList<>();
+    String jvmProp = (String) this.getProject().getProperties().get("-jvmArgs");
+    if (null != jvmProp) {
+      jvmArgs.addAll(Arrays.asList(jvmProp.split(" ")));
+    }
+    return jvmArgs;
+  }
+
+  private ArrayList<String> processJmhArgs(){
     ArrayList<String> toJmhRunner = new ArrayList<>();
     Project pj = this.getProject();
     HashSet<String> props = new HashSet<>(pj.getProperties().keySet());
@@ -60,6 +67,9 @@ public class BenchmarkJmhTask extends DefaultTask {
     * my own manipulation of those arguments.) */
     props.remove("-o");
     props.remove("help");
+    props.remove("-jvmArgs");
+    props.remove("-jvmArgsAppend");
+    props.remove("-jvmArgsPrepend");
     for (String prop : props){
         toJmhRunner.add(prop);
         toJmhRunner.add((String) pj.getProperties().get(prop));
@@ -75,24 +85,6 @@ public class BenchmarkJmhTask extends DefaultTask {
       new File(defaultOutputFile).getParentFile().mkdirs();
       toJmhRunner.addAll(new ArrayList<>(Arrays.asList("-o", defaultOutputFile)));
     }
-
-
-    //WARN: Blackboard specific code to follow inside of this if statement.
-    if (pj.hasProperty("bbTestServiceConfig") && pj.hasProperty("bbHome")){
-     int index = toJmhRunner.indexOf("-jvmArgs");
-      if (index == -1){
-        toJmhRunner.add("-jvmArgs");
-        toJmhRunner.add("-Dbbservices_config=" +(String) pj.getProperties().get("bbTestServiceConfig"));
-        //toJmhRunner.add(DEFAULT_INIT_HEAP_SIZE);
-        //toJmhRunner.add(DEFAULT_MAX_HEAP_SIZE);
-      } else {
-        toJmhRunner.add(index+ 1,"-Dbbservices_config=" + (String) pj.getProperties().get("bbTestServiceConfig"));
-        //toJmhRunner.add(index + 1, DEFAULT_INIT_HEAP_SIZE);
-        //toJmhRunner.add(index + 1, DEFAULT_MAX_HEAP_SIZE);
-      }
-    }
-
-    //Otherwise, we are in some other project, not depending on a gradle.properties file.
 
     //Help is displayed in the console, clears all other options.
     if (pj.hasProperty("help")){
