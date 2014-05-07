@@ -2,6 +2,7 @@ package com.blackboard.gradle;
 
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Project;
+import org.gradle.api.UnknownDomainObjectException;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.tasks.JavaExec;
@@ -11,47 +12,41 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.List;
+
 
 
 /**
  * This task is used to run JMH benchmark files. By default, this task runs every
  * benchmark for a project in the src/benchmark/java/... folder.
  */
-public class BenchmarkJmhTask extends JavaExec {
+public class BenchmarkJmhTask extends DefaultTask {
 
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
-  //private static final String OS_TYPE = System.getProperty("os.name").contains("windows")? "windows" : "linux" ;
+  //private static final String DEFAULT_INIT_HEAP_SIZE = "-Xms2048m";
+  //private static final String DEFAULT_MAX_HEAP_SIZE = "-Xms2048m";
+  private static final String OS_TYPE = System.getProperty("os.name").contains("windows")? "windows" : "linux" ;
   private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
+  private JavaExec jexec = new JavaExec();
 
   private final HashSet<String> VALID_JMH_ARGS = new HashSet<>(Arrays.asList("-bm", "-bs", "-e","-f", "-foe","-gc", "-h", "-i", "-jvm", "-jvmArgs", "-jvmArgsAppend", "-jvmArgsPrepend", "-l", "-lprof", "-lrf", "-o", "-p", "-prof", "-r", "-rf", "-rff", "-si", "-t","-tg","-tu","-v", "-wbs", "-wf", "-wi", "-wm", "-wmb"));
 
   @TaskAction
   public void benchmarkJmh() {
-    this.setMain(JMH_RUNNER);
+
+    jexec.setMain(JMH_RUNNER);
+
     /* Sets the classpath for the JMH runner. This requires the output of the benchmark sourceSet
      * as well as the runtime-classpath of the benchmarks. */
     JavaPluginConvention jpc = this.getProject().getConvention().getPlugin(JavaPluginConvention.class);
     FileCollection fcClasspath = jpc.getSourceSets().getByName("benchmark").getRuntimeClasspath();
-    this.setClasspath(fcClasspath);
+    //fcClasspath.add(jpc.getSourceSets().getByName("benchmark").getOutput());
+    jexec.setClasspath(fcClasspath);
     //Sends arguments defined in the gradle syntax of -P to the JMH runner. Example: -P-o="/my_path/text.txt"
-    this.setArgs(processJmhArgs());
-    //Sets the JVM specific args.
-
-    this.setJvmArgs(processJVMargs());
-    this.exec();
+    jexec.setArgs(processArgs());
+    jexec.exec();
   }
 
-  private ArrayList<String> processJVMargs(){
-    ArrayList<String> jvmArgs = new ArrayList<>();
-    String jvmProp = (String) this.getProject().getProperties().get("-jvmArgs");
-    if (null != jvmProp) {
-      jvmArgs.addAll(Arrays.asList(jvmProp.split(" ")));
-    }
-    return jvmArgs;
-  }
-
-  private ArrayList<String> processJmhArgs(){
+  private ArrayList<String> processArgs(){
     ArrayList<String> toJmhRunner = new ArrayList<>();
     Project pj = this.getProject();
     HashSet<String> props = new HashSet<>(pj.getProperties().keySet());
@@ -61,12 +56,10 @@ public class BenchmarkJmhTask extends JavaExec {
     props.retainAll(VALID_JMH_ARGS);
 
 
-    /* Adds args and their values to the list to be given to JMHRunner. */
+    /*Adds args and their values to the list to be given to JMHRunner. (Minus the help and -o property, as I'm doing
+    * my own manipulation of those arguments.) */
     props.remove("-o");
     props.remove("help");
-    props.remove("-jvmArgs");
-    props.remove("-jvmArgsAppend");
-    props.remove("-jvmArgsPrepend");
     for (String prop : props){
         toJmhRunner.add(prop);
         toJmhRunner.add((String) pj.getProperties().get(prop));
@@ -82,6 +75,24 @@ public class BenchmarkJmhTask extends JavaExec {
       new File(defaultOutputFile).getParentFile().mkdirs();
       toJmhRunner.addAll(new ArrayList<>(Arrays.asList("-o", defaultOutputFile)));
     }
+
+
+    //WARN: Blackboard specific code to follow inside of this if statement.
+    if (pj.hasProperty("bbTestServiceConfig") && pj.hasProperty("bbHome")){
+     int index = toJmhRunner.indexOf("-jvmArgs");
+      if (index == -1){
+        toJmhRunner.add("-jvmArgs");
+        toJmhRunner.add("-Dbbservices_config=" +(String) pj.getProperties().get("bbTestServiceConfig"));
+        //toJmhRunner.add(DEFAULT_INIT_HEAP_SIZE);
+        //toJmhRunner.add(DEFAULT_MAX_HEAP_SIZE);
+      } else {
+        toJmhRunner.add(index+ 1,"-Dbbservices_config=" + (String) pj.getProperties().get("bbTestServiceConfig"));
+        //toJmhRunner.add(index + 1, DEFAULT_INIT_HEAP_SIZE);
+        //toJmhRunner.add(index + 1, DEFAULT_MAX_HEAP_SIZE);
+      }
+    }
+
+    //Otherwise, we are in some other project, not depending on a gradle.properties file.
 
     //Help is displayed in the console, clears all other options.
     if (pj.hasProperty("help")){
