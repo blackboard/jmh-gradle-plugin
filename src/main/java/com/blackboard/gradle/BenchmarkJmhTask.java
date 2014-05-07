@@ -21,7 +21,6 @@ import java.util.HashSet;
 public class BenchmarkJmhTask extends DefaultTask {
 
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
-  private static final String OS_TYPE = System.getProperty("os.name").contains("windows")? "windows" : "linux" ;
   private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
 
