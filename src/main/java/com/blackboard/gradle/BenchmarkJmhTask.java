@@ -25,6 +25,8 @@ public class BenchmarkJmhTask extends DefaultTask {
   private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
 
+  private String extraJvmArgs = null;
+
   private final HashSet<String> VALID_JMH_ARGS = new HashSet<>(Arrays.asList("-bm", "-bs", "-e","-f", "-foe","-gc", "-h", "-i", "-jvm", "-jvmArgs", "-jvmArgsAppend", "-jvmArgsPrepend", "-l", "-lprof", "-lrf", "-o", "-p", "-prof", "-r", "-rf", "-rff", "-si", "-t","-tg","-tu","-v", "-wbs", "-wf", "-wi", "-wm", "-wmb"));
 
   @TaskAction
@@ -43,12 +45,23 @@ public class BenchmarkJmhTask extends DefaultTask {
     jexec.setJvmArgs(processJVMargs());
     jexec.exec();
   }
+  /** Pretty please be exposed in the build.gradle file. */
+  public String getExtraJvmArgs(){
+    return extraJvmArgs;
+  }
+
+  public void setExtraJvmArgs(String extraJvmArgs){
+    this.extraJvmArgs = extraJvmArgs;
+  }
 
   private ArrayList<String> processJVMargs(){
     ArrayList<String> jvmArgs = new ArrayList<>();
     String jvmProp = (String) this.getProject().getProperties().get("-jvmArgs");
-    if (null != jvmProp) {
+    if ( null != jvmProp ) {
       jvmArgs.addAll(Arrays.asList(jvmProp.split(" ")));
+    }
+    if ( null != extraJvmArgs ){
+      jvmArgs.addAll(Arrays.asList(extraJvmArgs.split(" ")));
     }
     return jvmArgs;
   }
