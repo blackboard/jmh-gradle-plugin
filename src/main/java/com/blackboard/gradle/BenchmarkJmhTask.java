@@ -45,11 +45,11 @@ public class BenchmarkJmhTask extends DefaultTask {
     jexec.setJvmArgs(processJVMargs());
     jexec.exec();
   }
-  /** Pretty please be exposed in the build.gradle file. */
+
   public String getExtraJvmArgs(){
     return extraJvmArgs;
   }
-
+  /** Allows you to set jvm arguments as a String. Arguments are split by the space character. */
   public void setExtraJvmArgs(String extraJvmArgs){
     this.extraJvmArgs = extraJvmArgs;
   }
@@ -101,7 +101,7 @@ public class BenchmarkJmhTask extends DefaultTask {
 
     //Help is displayed in the console, clears all other options.
     if (pj.hasProperty("help")){
-      displayUsage();
+      displayUsage();cd
       toJmhRunner.clear();
       toJmhRunner.add("-h");
     }
