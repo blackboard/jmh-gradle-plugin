@@ -2,6 +2,10 @@ package blackboard.gradle.jmhHelper
 
 import com.blackboard.gradle.BenchmarkJmhTask
 import org.gradle.api.Project
+import org.gradle.api.internal.artifacts.configurations.DefaultConfiguration
+import org.gradle.plugins.ide.eclipse.EclipsePlugin
+import org.gradle.plugins.ide.eclipse.model.EclipseClasspath
+import org.gradle.plugins.ide.idea.IdeaPlugin
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.file.SourceDirectorySet;
@@ -89,6 +93,46 @@ class TestBenchmarkPlugin {
     }
     assertNotNull(t);
     assertNotNull(t.getDescription());
+  }
+
+  @Test
+  public void testApplyEclipsePlugin(){
+    Project pj = ProjectBuilder.builder().build();
+    pj.apply plugin: 'eclipse';
+    pj.apply plugin: 'jmh';
+    assertTrue( "Eclipse plugin is missing from project",pj.getPlugins().hasPlugin("eclipse") );
+    assertTrue( "JMH plugin is missing from project", pj.getPlugins().hasPlugin("jmh") );
+
+    EclipsePlugin ep = pj.getPlugins().getPlugin(EclipsePlugin.class);
+    EclipseClasspath eCp = ep.getModel().getClasspath();
+    boolean benchmarkCompile = false;
+    boolean benchmarkRuntime = false;
+
+    for (DefaultConfiguration dc : eCp.getPlusConfigurations() ) {
+        String s =  dc.getName();
+        if ( s.equals("benchmarkCompile") ){
+          benchmarkCompile = true;
+        }
+        if ( s.equals("benchmarkRuntime") ){
+          benchmarkRuntime = true;
+        }
+    }
+
+    assertTrue( "Eclipse plugin is missing benchmarkCompile classpath entries", benchmarkCompile );
+    assertTrue( "Eclipse plugin is missing benchmarkRuntime classpath entries", benchmarkRuntime );
+  }
+
+  @Test
+  public void testApplyIdeaPlugin(){
+    Project pj = ProjectBuilder.builder().build();
+    pj.apply plugin: 'idea';
+    pj.apply plugin: 'jmh';
+    assertTrue( "Idea plugin is missing from project",pj.getPlugins().hasPlugin("idea") );
+    assertTrue( "JMH plugin is missing from project", pj.getPlugins().hasPlugin("jmh") );
+
+    IdeaPlugin ideaPlugin = pj.getPlugins().getPlugin(IdeaPlugin.class);
+
+    assertTrue(true);
   }
 
 }
