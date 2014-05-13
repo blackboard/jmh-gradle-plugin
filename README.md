@@ -60,3 +60,7 @@ Multiple options may be specified:
 In this case, the number of warmup iterations be test has been changed to 3,  
 the number of measurement iterations have been changed to 2,
 and the output of the tests is going to a file named `different_name.txt`
+
+### Future Developments ###
+It is my hope that this plugin will be included with the blackboard common plugin, causing the benchmarkJmh task to be included,
+by default, with every blackboard build.gradle file with no editing necessary.
