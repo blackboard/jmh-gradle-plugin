@@ -6,6 +6,7 @@ import org.gradle.api.internal.artifacts.configurations.DefaultConfiguration
 import org.gradle.plugins.ide.eclipse.EclipsePlugin
 import org.gradle.plugins.ide.eclipse.model.EclipseClasspath
 import org.gradle.plugins.ide.idea.IdeaPlugin
+import org.gradle.plugins.ide.idea.model.IdeaModule
 import org.gradle.testfixtures.ProjectBuilder
 import org.gradle.api.tasks.SourceSet
 import org.gradle.api.file.SourceDirectorySet;
@@ -131,8 +132,34 @@ class TestBenchmarkPlugin {
     assertTrue( "JMH plugin is missing from project", pj.getPlugins().hasPlugin("jmh") );
 
     IdeaPlugin ideaPlugin = pj.getPlugins().getPlugin(IdeaPlugin.class);
+    IdeaModule ideaModule = ideaPlugin.getModel().getModule();
 
-    assertTrue(true);
+    LinkedHashMap<String, LinkedHashMap<String, LinkedHashMap<String, ArrayList<DefaultConfiguration> >>> scopes = ideaModule.getScopes();
+
+    LinkedHashMap<String, LinkedHashMap<String, ArrayList<DefaultConfiguration> >> testScope =  scopes.get("TEST");
+
+    assertNotNull(testScope);
+
+    ArrayList<DefaultConfiguration>  plus = testScope.get("plus");
+
+    assertNotNull(plus);
+
+    boolean benchmarkCompile = false;
+    boolean benchmarkRuntime = false;
+
+    for (DefaultConfiguration dc : plus ) {
+      String s =  dc.getName();
+      if ( s.equals("benchmarkCompile") ){
+        benchmarkCompile = true;
+      }
+      if ( s.equals("benchmarkRuntime") ){
+        benchmarkRuntime = true;
+      }
+    }
+
+    assertTrue(benchmarkCompile);
+    assertTrue(benchmarkRuntime);
+
   }
 
 }
