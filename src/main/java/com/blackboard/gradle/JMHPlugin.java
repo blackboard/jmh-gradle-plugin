@@ -1,24 +1,27 @@
 package com.blackboard.gradle;
 
-import groovy.lang.Closure;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
+import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.eclipse.model.EclipseClasspath;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
 import org.gradle.plugins.ide.idea.model.IdeaModule;
 
+import java.io.File;
+import java.util.Collection;
+import java.util.Set;
 
 public class JMHPlugin implements Plugin<Project> {
-
   public static final String BENCHMARK_JMH_TASK_NAME = "benchmarkJmh";
   public static final String BENCHMARK_SOURCESET_NAME = "benchmark";
-  private static final String JMH_CONFIG_NAME = "jmh";
   private static final String JMH_VERSION = "0.5.6";
 
   private static final String COMPILE_BENCHMARK_NAME = "benchmarkCompile";
@@ -34,6 +37,7 @@ public class JMHPlugin implements Plugin<Project> {
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
 
     configureJMHBenchmarkLocation(javaConvention);
+    configureConfigurations();
     configureDependencies();
     configureIDESupport(javaConvention);
     defineBenchmarkJmhTask();
@@ -41,49 +45,25 @@ public class JMHPlugin implements Plugin<Project> {
 
   private void configureJMHBenchmarkLocation(JavaPluginConvention pluginConvention) {
     SourceSet benchmarkSourceSet = pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
-    SourceSet mainSourceSet = this.project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    SourceSet mainSourceSet = project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
 
-    benchmarkSourceSet.setCompileClasspath(this.project.files(mainSourceSet.getOutput(), project.getConfigurations().getByName(COMPILE_BENCHMARK_NAME)));
-    benchmarkSourceSet.setRuntimeClasspath(this.project.files(mainSourceSet.getOutput(), benchmarkSourceSet.getOutput(),
-                                           project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME)));
+    ConfigurationContainer configurations = project.getConfigurations();
+    benchmarkSourceSet.setCompileClasspath(project.files(mainSourceSet.getOutput(), configurations.getByName(COMPILE_BENCHMARK_NAME)));
+    benchmarkSourceSet.setRuntimeClasspath(project.files(mainSourceSet.getOutput(), benchmarkSourceSet.getOutput(),
+        configurations.getByName(RUNTIME_BENCHMARK_NAME)));
+  }
+
+  private void configureConfigurations() {
+    project.getRepositories().add(project.getRepositories().mavenCentral());
+    ConfigurationContainer configurations = project.getConfigurations();
+    Configuration benchmarkCompile = configurations.getByName("benchmarkCompile");
+    benchmarkCompile.extendsFrom(configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
   }
 
   private void configureDependencies() {
-    project.repositories(new Closure<Object>(this, this) {
-      public Object doCall(Object it) {
-        return invokeMethod("mavenCentral", new Object[0]);
-      }
-
-      public Object doCall() {
-        return doCall(null);
-      }
-
-    });
-    project.dependencies(new Closure<Object>(this, this) {
-      public Object doCall(Object it) {
-        invokeMethod("benchmarkCompile", new Object[]{"org.openjdk.jmh:jmh-core:" + JMH_VERSION});
-        invokeMethod("compile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
-        return invokeMethod("benchmarkCompile", new Object[]{"org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION});
-      }
-
-      public Object doCall() {
-        return doCall(null);
-      }
-
-    });
-    project.configurations(new Closure<Object>(this, this) {
-      public Object doCall(Object it) {
-        return JMH_CONFIG_NAME;
-      }
-
-      public Object doCall() {
-        return doCall(null);
-      }
-
-    });
-
-    Configuration benchmarkCompile = this.project.getConfigurations().getByName("benchmarkCompile");
-    benchmarkCompile.extendsFrom(this.project.getConfigurations().getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
+    DependencyHandler dependencies = project.getDependencies();
+    dependencies.add("benchmarkCompile", "org.openjdk.jmh:jmh-core:" + JMH_VERSION);
+    dependencies.add("benchmarkCompile", "org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION);
   }
 
   private void defineBenchmarkJmhTask() {
@@ -93,31 +73,33 @@ public class JMHPlugin implements Plugin<Project> {
     benchmarkJmhTask.dependsOn(project.getTasks().getByName("compileBenchmarkJava"));
   }
 
-  private void configureIDESupport(JavaPluginConvention javaPluginConvention){
+  /**
+   * Add IDE support for benchmarks in test scopes if the IntelliJ or Eclipse plugins are available.
+   */
+  private void configureIDESupport(JavaPluginConvention javaPluginConvention) {
+    ConfigurationContainer configurations = project.getConfigurations();
+    PluginContainer plugins = project.getPlugins();
 
-    //Gives Eclipse IDE support to the benchmarkSourceSet if EclipsePlugin is applied to the project.
-    if (project.getPlugins().hasPlugin(EclipsePlugin.class)) {
-      EclipsePlugin eclipsePlugin = project.getPlugins().getPlugin(EclipsePlugin.class);
+    if (plugins.hasPlugin(EclipsePlugin.class)) {
+      EclipsePlugin eclipsePlugin = plugins.getPlugin(EclipsePlugin.class);
       EclipseClasspath oldEclipseClassPath = eclipsePlugin.getModel().getClasspath();
 
-      oldEclipseClassPath.getPlusConfigurations().add(project.getConfigurations().getByName(COMPILE_BENCHMARK_NAME));
-      oldEclipseClassPath.getPlusConfigurations().add(project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME));
+      oldEclipseClassPath.getPlusConfigurations().add(configurations.getByName(COMPILE_BENCHMARK_NAME));
+      oldEclipseClassPath.getPlusConfigurations().add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
       eclipsePlugin.getModel().setClasspath(oldEclipseClassPath);
     }
 
-    //Gives IntelliJ IDE support if IDEA plugin is applied.
-    if (project.getPlugins().hasPlugin(IdeaPlugin.class)) {
-      IdeaPlugin ideaPlugin = project.getPlugins().getPlugin(IdeaPlugin.class);
+    if (plugins.hasPlugin(IdeaPlugin.class)) {
+      IdeaPlugin ideaPlugin = plugins.getPlugin(IdeaPlugin.class);
       IdeaModule ideaModule = ideaPlugin.getModel().getModule();
       SourceSet benchmarkSourceSet = javaPluginConvention.getSourceSets().getByName(BENCHMARK_SOURCESET_NAME);
 
-      ideaModule.getTestSourceDirs().addAll(benchmarkSourceSet.getAllJava().getSrcDirs());
-      ideaModule.getTestSourceDirs().addAll(benchmarkSourceSet.getResources().getSrcDirs());
-      //Sets IDEA scopes
-      ideaModule.getScopes().get("TEST").get("plus").add(project.getConfigurations().getByName(COMPILE_BENCHMARK_NAME));
-      ideaModule.getScopes().get("TEST").get("plus").add(project.getConfigurations().getByName(RUNTIME_BENCHMARK_NAME));
+      Set<File> testSourceDirs = ideaModule.getTestSourceDirs();
+      testSourceDirs.addAll(benchmarkSourceSet.getAllJava().getSrcDirs());
+      testSourceDirs.addAll(benchmarkSourceSet.getResources().getSrcDirs());
+      Collection<Configuration> testPlusScope = ideaModule.getScopes().get("TEST").get("plus");
+      testPlusScope.add(configurations.getByName(COMPILE_BENCHMARK_NAME));
+      testPlusScope.add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
     }
-
   }
-
 }

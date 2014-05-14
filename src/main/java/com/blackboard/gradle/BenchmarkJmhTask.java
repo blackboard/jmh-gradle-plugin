@@ -12,25 +12,21 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 
-
-
 /**
  * This task is used to run JMH benchmark files. By default, this task runs every
  * benchmark for a project in the src/benchmark/java/... folder.
  */
 public class BenchmarkJmhTask extends DefaultTask {
-
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
   private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
 
   private String extraJvmArgs = null;
 
-  private final HashSet<String> VALID_JMH_ARGS = new HashSet<>(Arrays.asList("-bm", "-bs", "-e","-f", "-foe","-gc", "-h", "-i", "-jvm", "-jvmArgs", "-jvmArgsAppend", "-jvmArgsPrepend", "-l", "-lprof", "-lrf", "-o", "-p", "-prof", "-r", "-rf", "-rff", "-si", "-t","-tg","-tu","-v", "-wbs", "-wf", "-wi", "-wm", "-wmb"));
+  private final HashSet<String> VALID_JMH_ARGS = new HashSet<>(Arrays.asList("-bm", "-bs", "-e", "-f", "-foe", "-gc", "-h", "-i", "-jvm", "-jvmArgs", "-jvmArgsAppend", "-jvmArgsPrepend", "-l", "-lprof", "-lrf", "-o", "-p", "-prof", "-r", "-rf", "-rff", "-si", "-t", "-tg", "-tu", "-v", "-wbs", "-wf", "-wi", "-wm", "-wmb"));
 
   @TaskAction
   public void benchmarkJmh() {
-
     jexec.setMain(JMH_RUNNER);
 
     /* Sets the classpath for the JMH runner. This requires the output of the benchmark sourceSet
@@ -45,27 +41,30 @@ public class BenchmarkJmhTask extends DefaultTask {
     jexec.exec();
   }
 
-  public String getExtraJvmArgs(){
+  public String getExtraJvmArgs() {
     return extraJvmArgs;
   }
-  /** Allows you to set jvm arguments as a String. Arguments are split by the space character. */
-  public void setExtraJvmArgs(String extraJvmArgs){
+
+  /**
+   * Allows you to set jvm arguments as a String. Arguments are split by the space character.
+   */
+  public void setExtraJvmArgs(String extraJvmArgs) {
     this.extraJvmArgs = extraJvmArgs;
   }
 
-  private ArrayList<String> processJVMargs(){
+  private ArrayList<String> processJVMargs() {
     ArrayList<String> jvmArgs = new ArrayList<>();
     String jvmProp = (String) this.getProject().getProperties().get("-jvmArgs");
-    if ( null != jvmProp ) {
+    if (null != jvmProp) {
       jvmArgs.addAll(Arrays.asList(jvmProp.split(" ")));
     }
-    if ( null != extraJvmArgs ){
+    if (null != extraJvmArgs) {
       jvmArgs.addAll(Arrays.asList(extraJvmArgs.split(" ")));
     }
     return jvmArgs;
   }
 
-  private ArrayList<String> processJmhArgs(){
+  private ArrayList<String> processJmhArgs() {
     ArrayList<String> toJmhRunner = new ArrayList<>();
     Project pj = this.getProject();
     HashSet<String> props = new HashSet<>(pj.getProperties().keySet());
@@ -82,13 +81,13 @@ public class BenchmarkJmhTask extends DefaultTask {
     props.remove("-jvmArgs");
     props.remove("-jvmArgsAppend");
     props.remove("-jvmArgsPrepend");
-    for (String prop : props){
-        toJmhRunner.add(prop);
-        toJmhRunner.add((String) pj.getProperties().get(prop));
+    for (String prop : props) {
+      toJmhRunner.add(prop);
+      toJmhRunner.add((String) pj.getProperties().get(prop));
     }
 
     //TODO: The create logic to change the output to a safe location other than the project build directory.
-    if (pj.hasProperty("-o")){
+    if (pj.hasProperty("-o")) {
       String fName = pj.getBuildDir() + File.separator + pj.getProperties().get("-o");
       new File(fName);
       toJmhRunner.add("-o");
@@ -99,7 +98,7 @@ public class BenchmarkJmhTask extends DefaultTask {
     }
 
     //Help is displayed in the console, clears all other options.
-    if (pj.hasProperty("help")){
+    if (pj.hasProperty("help")) {
       displayUsage();
       toJmhRunner.clear();
       toJmhRunner.add("-h");
@@ -108,11 +107,10 @@ public class BenchmarkJmhTask extends DefaultTask {
     return toJmhRunner;
   }
 
-  private void displayUsage(){
+  private void displayUsage() {
     System.out.println("This task depends on the fact that all benchmarks are compilable, valid, java jmh benchmarks.");
     System.out.println("For this task to function, benchmarks must be placed in src/benchmark/java/<your own folder structure here>");
     System.out.println("Arguments to this task are defined with the gradle -P syntax.");
     System.out.println("By default, the output of JMH benchmarks are located in jmh-output.txt in the build directory of this project.");
   }
-
 }
