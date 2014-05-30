@@ -82,11 +82,11 @@ public class JMHPlugin implements Plugin<Project> {
 
     if (plugins.hasPlugin(EclipsePlugin.class)) {
       EclipsePlugin eclipsePlugin = plugins.getPlugin(EclipsePlugin.class);
-      EclipseClasspath oldEclipseClassPath = eclipsePlugin.getModel().getClasspath();
+      EclipseClasspath eclipseClasspath = eclipsePlugin.getModel().getClasspath();
 
-      oldEclipseClassPath.getPlusConfigurations().add(configurations.getByName(COMPILE_BENCHMARK_NAME));
-      oldEclipseClassPath.getPlusConfigurations().add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
-      eclipsePlugin.getModel().setClasspath(oldEclipseClassPath);
+      eclipseClasspath.getPlusConfigurations().add(configurations.getByName(COMPILE_BENCHMARK_NAME));
+      eclipseClasspath.getPlusConfigurations().add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
+      eclipsePlugin.getModel().setClasspath(eclipseClasspath);
     }
 
     if (plugins.hasPlugin(IdeaPlugin.class)) {
