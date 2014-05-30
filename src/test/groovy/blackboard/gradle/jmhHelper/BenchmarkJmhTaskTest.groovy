@@ -39,4 +39,12 @@ class BenchmarkJmhTaskTest {
     task.benchmarkJmh();
   }
 
+  @Test
+  public void setExtraJvmArgs_setsArgumentsISet(){
+    project.apply plugin: 'jmh'
+    BenchmarkJmhTask t = task;
+    t.setExtraJvmArgs("bogusArg");
+    assertEquals("Expected extraJvmArgs to be set to bogusArg",  "bogusArg", t.getExtraJvmArgs());
+  }
+
 } 
