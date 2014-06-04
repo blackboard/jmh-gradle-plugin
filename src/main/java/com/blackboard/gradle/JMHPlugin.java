@@ -1,5 +1,6 @@
 package com.blackboard.gradle;
 
+import org.gradle.api.Action;
 import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -76,30 +77,34 @@ public class JMHPlugin implements Plugin<Project> {
   /**
    * Add IDE support for benchmarks in test scopes if the IntelliJ or Eclipse plugins are available.
    */
-  private void configureIDESupport(JavaPluginConvention javaPluginConvention) {
-    ConfigurationContainer configurations = project.getConfigurations();
-    PluginContainer plugins = project.getPlugins();
+  private void configureIDESupport(final JavaPluginConvention javaPluginConvention) {
+    final ConfigurationContainer configurations = project.getConfigurations();
+    final PluginContainer plugins = project.getPlugins();
 
-    if (plugins.hasPlugin(EclipsePlugin.class)) {
-      EclipsePlugin eclipsePlugin = plugins.getPlugin(EclipsePlugin.class);
-      EclipseClasspath eclipseClasspath = eclipsePlugin.getModel().getClasspath();
+    project.afterEvaluate( new Action<Project>() {
+      @Override
+      public void execute(Project project) {
+        if (plugins.hasPlugin(EclipsePlugin.class)) {
+          EclipsePlugin eclipsePlugin = plugins.getPlugin(EclipsePlugin.class);
+          EclipseClasspath eclipseClasspath = eclipsePlugin.getModel().getClasspath();
+          eclipseClasspath.getPlusConfigurations().add(configurations.getByName(COMPILE_BENCHMARK_NAME));
+          eclipseClasspath.getPlusConfigurations().add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
+          eclipsePlugin.getModel().setClasspath(eclipseClasspath);
+        }
 
-      eclipseClasspath.getPlusConfigurations().add(configurations.getByName(COMPILE_BENCHMARK_NAME));
-      eclipseClasspath.getPlusConfigurations().add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
-      eclipsePlugin.getModel().setClasspath(eclipseClasspath);
-    }
+        if (plugins.hasPlugin(IdeaPlugin.class)) {
+          IdeaPlugin ideaPlugin = plugins.getPlugin(IdeaPlugin.class);
+          IdeaModule ideaModule = ideaPlugin.getModel().getModule();
+          SourceSet benchmarkSourceSet = javaPluginConvention.getSourceSets().getByName(BENCHMARK_SOURCESET_NAME);
 
-    if (plugins.hasPlugin(IdeaPlugin.class)) {
-      IdeaPlugin ideaPlugin = plugins.getPlugin(IdeaPlugin.class);
-      IdeaModule ideaModule = ideaPlugin.getModel().getModule();
-      SourceSet benchmarkSourceSet = javaPluginConvention.getSourceSets().getByName(BENCHMARK_SOURCESET_NAME);
-
-      Set<File> testSourceDirs = ideaModule.getTestSourceDirs();
-      testSourceDirs.addAll(benchmarkSourceSet.getAllJava().getSrcDirs());
-      testSourceDirs.addAll(benchmarkSourceSet.getResources().getSrcDirs());
-      Collection<Configuration> testPlusScope = ideaModule.getScopes().get("TEST").get("plus");
-      testPlusScope.add(configurations.getByName(COMPILE_BENCHMARK_NAME));
-      testPlusScope.add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
-    }
+          Set<File> testSourceDirs = ideaModule.getTestSourceDirs();
+          testSourceDirs.addAll(benchmarkSourceSet.getAllJava().getSrcDirs());
+          testSourceDirs.addAll(benchmarkSourceSet.getResources().getSrcDirs());
+          Collection<Configuration> testPlusScope = ideaModule.getScopes().get("TEST").get("plus");
+          testPlusScope.add(configurations.getByName(COMPILE_BENCHMARK_NAME));
+          testPlusScope.add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
+        }
+      }
+    });
   }
 }
