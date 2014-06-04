@@ -32,7 +32,7 @@ buildscript {
             }
        }
         dependencies {
-            classpath group: 'com.blackboard.gradle', name: 'jmh-gradle-plugin', version: '1.0-SNAPSHOT'
+            classpath group: 'com.blackboard.gradle', name: 'jmh-gradle-plugin', version: '1.1-SNAPSHOT'
        }
 }
     apply plugin: com.blackboard.gradle.JMHPlugin
