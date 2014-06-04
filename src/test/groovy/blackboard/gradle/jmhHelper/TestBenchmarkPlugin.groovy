@@ -103,6 +103,7 @@ class TestBenchmarkPlugin {
     pj.apply plugin: 'jmh';
     assertTrue( "Eclipse plugin is missing from project",pj.getPlugins().hasPlugin("eclipse") );
     assertTrue( "JMH plugin is missing from project", pj.getPlugins().hasPlugin("jmh") );
+    pj.projectEvaluationBroadcaster.afterEvaluate(pj, null)
 
     EclipsePlugin ep = pj.getPlugins().getPlugin(EclipsePlugin.class);
     EclipseClasspath eCp = ep.getModel().getClasspath();
@@ -130,7 +131,7 @@ class TestBenchmarkPlugin {
     pj.apply plugin: 'jmh';
     assertTrue( "Idea plugin is missing from project",pj.getPlugins().hasPlugin("idea") );
     assertTrue( "JMH plugin is missing from project", pj.getPlugins().hasPlugin("jmh") );
-
+    pj.projectEvaluationBroadcaster.afterEvaluate(pj, null)
     IdeaPlugin ideaPlugin = pj.getPlugins().getPlugin(IdeaPlugin.class);
     IdeaModule ideaModule = ideaPlugin.getModel().getModule();
 
@@ -159,7 +160,5 @@ class TestBenchmarkPlugin {
 
     assertTrue(benchmarkCompile);
     assertTrue(benchmarkRuntime);
-
   }
-
 }
