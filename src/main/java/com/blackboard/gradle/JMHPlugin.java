@@ -59,7 +59,7 @@ public class JMHPlugin implements Plugin<Project> {
     project.getRepositories().add(project.getRepositories().mavenCentral());
     ConfigurationContainer configurations = project.getConfigurations();
     Configuration benchmarkCompile = configurations.getByName("benchmarkCompile");
-    benchmarkCompile.extendsFrom(configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
+    benchmarkCompile.extendsFrom(configurations.getByName(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME));
 
     Configuration jmh = configurations.create(JMH_CONFIGURATION_NAME);
     DependencyHandler dependencies = project.getDependencies();
