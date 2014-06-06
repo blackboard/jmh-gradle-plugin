@@ -12,6 +12,7 @@ import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
 import org.gradle.api.plugins.PluginContainer;
 import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
 import org.gradle.plugins.ide.eclipse.EclipsePlugin;
 import org.gradle.plugins.ide.eclipse.model.EclipseClasspath;
 import org.gradle.plugins.ide.idea.IdeaPlugin;
@@ -33,7 +34,6 @@ public class JMHPlugin implements Plugin<Project> {
   protected Project project;
 
   public void apply(Project project) {
-    // Applying the JavaPlugin gives access to the sourceSets object.
     this.project = project;
     this.project.getPlugins().apply(JavaPlugin.class);
 
@@ -47,12 +47,13 @@ public class JMHPlugin implements Plugin<Project> {
 
   private void configureJMHBenchmarkLocation(JavaPluginConvention pluginConvention) {
     SourceSet benchmarkSourceSet = pluginConvention.getSourceSets().create(BENCHMARK_SOURCESET_NAME);
-    SourceSet mainSourceSet = project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    SourceSetContainer sourceSets = project.getConvention().getPlugin(JavaPluginConvention.class).getSourceSets();
+    SourceSet mainSourceSet = sourceSets.getByName(SourceSet.MAIN_SOURCE_SET_NAME);
+    SourceSet testSourceSet = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
 
     ConfigurationContainer configurations = project.getConfigurations();
-    benchmarkSourceSet.setCompileClasspath(project.files(mainSourceSet.getOutput(), configurations.getByName(COMPILE_BENCHMARK_NAME)));
-    benchmarkSourceSet.setRuntimeClasspath(project.files(mainSourceSet.getOutput(), benchmarkSourceSet.getOutput(),
-        configurations.getByName(RUNTIME_BENCHMARK_NAME)));
+    benchmarkSourceSet.setCompileClasspath(project.files(mainSourceSet.getOutput(), testSourceSet.getOutput(), configurations.getByName(COMPILE_BENCHMARK_NAME)));
+    benchmarkSourceSet.setRuntimeClasspath(project.files(mainSourceSet.getOutput(), testSourceSet.getOutput(), benchmarkSourceSet.getOutput(), configurations.getByName(RUNTIME_BENCHMARK_NAME)));
   }
 
   private void configureConfigurations() {
