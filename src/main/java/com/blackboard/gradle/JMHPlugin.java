@@ -6,6 +6,7 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
+import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -23,10 +24,11 @@ import java.util.Set;
 public class JMHPlugin implements Plugin<Project> {
   public static final String BENCHMARK_JMH_TASK_NAME = "benchmarkJmh";
   public static final String BENCHMARK_SOURCESET_NAME = "benchmark";
-  private static final String JMH_VERSION = "0.7.3";
+  private static final String JMH_VERSION = "0.8";
 
   private static final String COMPILE_BENCHMARK_NAME = "benchmarkCompile";
   private static final String RUNTIME_BENCHMARK_NAME = "benchmarkRuntime";
+  private static final String JMH_CONFIGURATION_NAME = "jmh";
 
   protected Project project;
 
@@ -39,7 +41,6 @@ public class JMHPlugin implements Plugin<Project> {
 
     configureJMHBenchmarkLocation(javaConvention);
     configureConfigurations();
-    configureDependencies();
     configureIDESupport(javaConvention);
     defineBenchmarkJmhTask();
   }
@@ -59,12 +60,14 @@ public class JMHPlugin implements Plugin<Project> {
     ConfigurationContainer configurations = project.getConfigurations();
     Configuration benchmarkCompile = configurations.getByName("benchmarkCompile");
     benchmarkCompile.extendsFrom(configurations.getByName(JavaPlugin.COMPILE_CONFIGURATION_NAME));
-  }
 
-  private void configureDependencies() {
+    Configuration jmh = configurations.create(JMH_CONFIGURATION_NAME);
     DependencyHandler dependencies = project.getDependencies();
-    dependencies.add("benchmarkCompile", "org.openjdk.jmh:jmh-core:" + JMH_VERSION);
-    dependencies.add("benchmarkCompile", "org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION);
+    dependencies.add(JMH_CONFIGURATION_NAME, "org.openjdk.jmh:jmh-core:" + JMH_VERSION);
+    dependencies.add(JMH_CONFIGURATION_NAME, "org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION);
+    for (Dependency dependency : jmh.getDependencies()) {
+      benchmarkCompile.getDependencies().add(dependency);
+    }
   }
 
   private void defineBenchmarkJmhTask() {
@@ -81,7 +84,7 @@ public class JMHPlugin implements Plugin<Project> {
     final ConfigurationContainer configurations = project.getConfigurations();
     final PluginContainer plugins = project.getPlugins();
 
-    project.afterEvaluate( new Action<Project>() {
+    project.afterEvaluate(new Action<Project>() {
       @Override
       public void execute(Project project) {
         if (plugins.hasPlugin(EclipsePlugin.class)) {
