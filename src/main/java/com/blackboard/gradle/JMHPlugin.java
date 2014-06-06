@@ -103,6 +103,7 @@ public class JMHPlugin implements Plugin<Project> {
           Set<File> testSourceDirs = ideaModule.getTestSourceDirs();
           testSourceDirs.addAll(benchmarkSourceSet.getAllJava().getSrcDirs());
           testSourceDirs.addAll(benchmarkSourceSet.getResources().getSrcDirs());
+          ideaModule.setTestSourceDirs(testSourceDirs);
           Collection<Configuration> testPlusScope = ideaModule.getScopes().get("TEST").get("plus");
           testPlusScope.add(configurations.getByName(COMPILE_BENCHMARK_NAME));
           testPlusScope.add(configurations.getByName(RUNTIME_BENCHMARK_NAME));
