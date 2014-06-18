@@ -19,31 +19,31 @@ import static org.junit.Assert.*;
 
 class TestBenchmarkPlugin {
 
-  Project project;
+  Project _project;
 
   @Before
   void setUp(){
-    project = ProjectBuilder.builder().build();
-    project.apply plugin: 'jmh';
+    _project = ProjectBuilder.builder().build();
+    _project.apply plugin: 'jmh';
   }
 	
   @Test
   public void checkPluginAppliedToProject() {
-    assertTrue("Project should have JMHPlugin", project.getPlugins().hasPlugin("jmh"));
+    assertTrue("Project should have JMHPlugin", _project.getPlugins().hasPlugin("jmh"));
   }
   
   @Test
   public void checkBenchmarkJMHTaskIsAddedWhenPluginIsApplied() {
-    assertNotNull(project.getTasks().getByName("benchmarkJmh"));
-    assertTrue("Project is missing task of type BenchmarkJmhTask",project.getTasks().getByName("benchmarkJmh") instanceof BenchmarkJmhTask);
+    assertNotNull( _project.getTasks().getByName("benchmarkJmh") );
+    assertTrue( "Project is missing task of type BenchmarkJmhTask", _project.getTasks().getByName("benchmarkJmh") instanceof BenchmarkJmhTask );
   }
 
-  /* This test is pedantic, I created it to increase my understanding of how the project.apply plugin mechanism works.
+  /* This test is pedantic, I created it to increase my understanding of how the _project.apply plugin mechanism works.
      From this, I can see that invoking JMHPlugin causes the JavaPlugin to be applied; this is the desired behavior, as the
      JMHPlugin uses a sourceSet. SourceSets can only exist after invoking the JavaPlugin. */
   @Test
   public void checkThatJavaPluginGetsAppliedWhenUsingJMHPlugin(){
-    assertTrue("Project should have JavaPlugin", project.getPlugins().hasPlugin("java")); 
+    assertTrue("Project should have JavaPlugin", _project.getPlugins().hasPlugin("java"));
   }
   
   @Test
@@ -51,7 +51,7 @@ class TestBenchmarkPlugin {
     /* sourceSets, is an object of type SourceSetContainer, that appears after invoking apply JMHPlugin.
        This object is created (inherited?) from the java plugin which JMHPlugin invokes. */
     SourceSet tar = null;
-    for (SourceSet s : project.sourceSets){
+    for (SourceSet s : _project.sourceSets){
       if (s.getName().equals("benchmark")) {
         tar = s;
         break;
@@ -79,7 +79,7 @@ class TestBenchmarkPlugin {
 
   @Test
   public void testSourceSetHasRuntimeClasspath() {
-    SourceSet s = project.sourceSets.benchmark;
+    SourceSet s = _project.sourceSets.benchmark;
     assertNotNull(s); 
     assertFalse(s.runtimeClasspath.isEmpty());
   }
@@ -88,7 +88,7 @@ class TestBenchmarkPlugin {
   public void testDescriptionOfTask(){
     Task t = null;
     try {
-         t = project.getTasks().getByName("benchmarkJmh");
+         t = _project.getTasks().getByName("benchmarkJmh");
     } catch (UnknownTaskException e){
       fail("Task benchmarkJmh could not be found by name");
     }
@@ -101,8 +101,8 @@ class TestBenchmarkPlugin {
     Project pj = ProjectBuilder.builder().build();
     pj.apply plugin: 'eclipse';
     pj.apply plugin: 'jmh';
-    assertTrue( "Eclipse plugin is missing from project",pj.getPlugins().hasPlugin("eclipse") );
-    assertTrue( "JMH plugin is missing from project", pj.getPlugins().hasPlugin("jmh") );
+    assertTrue( "Expected Eclipse Plugin to be applied to the project.",pj.getPlugins().hasPlugin("eclipse") );
+    assertTrue( "Expected Jmh plugin to be applied to the project", pj.getPlugins().hasPlugin("jmh") );
     pj.projectEvaluationBroadcaster.afterEvaluate(pj, null)
 
     EclipsePlugin ep = pj.getPlugins().getPlugin(EclipsePlugin.class);
@@ -119,9 +119,8 @@ class TestBenchmarkPlugin {
           benchmarkRuntime = true;
         }
     }
-
-    assertTrue( "Eclipse plugin is missing benchmarkCompile classpath entries", benchmarkCompile );
-    assertTrue( "Eclipse plugin is missing benchmarkRuntime classpath entries", benchmarkRuntime );
+    assertTrue( "Expected Eclipse classpath to contain benchmarkCompile entries", benchmarkCompile );
+    assertTrue( "Expected Eclipse classpath to contain benchmarkRuntime entries", benchmarkRuntime );
   }
 
   @Test

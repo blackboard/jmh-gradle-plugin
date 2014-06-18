@@ -23,7 +23,9 @@ public class BenchmarkJmhTask extends DefaultTask {
 
   private String extraJvmArgs = null;
 
-  private final HashSet<String> VALID_JMH_ARGS = new HashSet<>(Arrays.asList("-bm", "-bs", "-e", "-f", "-foe", "-gc", "-h", "-i", "-jvm", "-jvmArgs", "-jvmArgsAppend", "-jvmArgsPrepend", "-l", "-lprof", "-lrf", "-o", "-p", "-prof", "-r", "-rf", "-rff", "-si", "-t", "-tg", "-tu", "-v", "-wbs", "-wf", "-wi", "-wm", "-wmb"));
+  private final HashSet<String> VALID_JMH_ARGS = new HashSet<>(Arrays.asList("-bm", "-bs", "-e", "-f", "-foe",
+      "-gc", "-h", "-i", "-jvm", "-jvmArgs", "-jvmArgsAppend", "-jvmArgsPrepend", "-l", "-lprof", "-lrf", "-o", "-p",
+      "-prof", "-r", "-rf", "-rff", "-si", "-t", "-tg", "-tu", "-v", "-wbs", "-wf", "-wi", "-wm", "-wmb", "-regexp" ));
 
   @TaskAction
   public void benchmarkJmh() {
@@ -74,13 +76,14 @@ public class BenchmarkJmhTask extends DefaultTask {
     props.retainAll(VALID_JMH_ARGS);
 
 
-    /*Adds args and their values to the list to be given to JMHRunner. (Minus the help and -o property, as I'm doing
+    /*Adds args and their values to the list to be given to JMHRunner. (Minus the help, -o, and jvmArgs properties, as I'm doing
     * my own manipulation of those arguments.) */
     props.remove("-o");
     props.remove("help");
     props.remove("-jvmArgs");
     props.remove("-jvmArgsAppend");
     props.remove("-jvmArgsPrepend");
+    props.remove("-regexp");
     for (String prop : props) {
       toJmhRunner.add(prop);
       toJmhRunner.add((String) pj.getProperties().get(prop));
@@ -102,6 +105,11 @@ public class BenchmarkJmhTask extends DefaultTask {
       displayUsage();
       toJmhRunner.clear();
       toJmhRunner.add("-h");
+    }
+
+    if (pj.hasProperty( "-regexp" )){
+      String specificBenchmarkPattern = (String)pj.getProperties().get("-regexp");
+      toJmhRunner.add(0, specificBenchmarkPattern );
     }
 
     return toJmhRunner;

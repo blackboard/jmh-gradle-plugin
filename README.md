@@ -8,21 +8,38 @@ A gradle plugin designed to run JMH benchmarks associated with a project. This p
 ## How to use the Plugin ##
 
 ```
-> gdl benchmarkJmh
+ gdl benchmarkJmh
 ```
 
 This task, by default, will run all JMH benchmarks found in the src/benchmark/java/... folder, and,
 by default, will produce an output text file, named `jmh-output.txt`, in the project build directory.
+
+## How to choose a specific benchmark ##
+
+By default, the benchmarkJmh task will run all benchmarks in the sourceSet. Sometimes this is undesirable, when you  
+only want to run a small set of benchmarks, or a specific benchmark. You may run give the benchmarkJmh task a regex to  
+match a specific benchmark or group of benchmarks with the -regexp option.
+
+```
+gdl benchmarkJmh -P-regexp=".*SomeSpecificBenchmarkName.*"
+```
+
+It is important to include the first .* and last .* around the name, as JMH generates several supporting class files  
+per benchmark class. In general, if your benchmark class is MyBenchmark.java, a regex of .*MyBenchmark.* will run that benchmark.
 
 ### Where to put benchmarks ###
 The JMH Gradle plugin uses the standard gradle sourceSet layout for managing the location of its source-files. Therefore,
 all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*
 
 
-### Installing the plugin ###
-The plugin is located in maven.pd.local
+### Using the plugin on an existing Blackboard project ###
+The plugin is located in maven.pd.local and is currently included as part of the Blackboard Common plugin. If you are working  
+on a blackboard project, you already have access to the benchmarkJmh task, and don't have to do anything.
+
+
+### Adding the Plugin to a non-blackboard project ###
 If you are connected to blackboard's network, adding the following buildscript block to your project under test will
-give you access to the benchmarkJmh task.
+give you access to the benchmarkJmh task, by installing the necessary artifacts to your local maven repository.
 
 ```
 buildscript {
@@ -60,7 +77,3 @@ Multiple options may be specified:
 In this case, the number of warmup iterations be test has been changed to 3,  
 the number of measurement iterations have been changed to 2,
 and the output of the tests is going to a file named `different_name.txt`
-
-### Future Developments ###
-It is my hope that this plugin will be included with the blackboard common plugin, causing the benchmarkJmh task to be included,
-by default, with every blackboard build.gradle file with no editing necessary.
