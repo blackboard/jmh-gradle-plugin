@@ -52,7 +52,10 @@ uploadArchives {
   }
   repositories {
     mavenDeployer {
-      repository( url : "http://maven.pd.local/content/repositories/snapshots" ) {
+      repository( url : "http://maven.pd.local/content/repositories/releases/" ) {
+        authentication( userName: nexusUsername, password: nexusPassword )
+      }
+      snapshotRepository( url : "http://maven.pd.local/content/repositories/releases/" ) {
         authentication( userName: nexusUsername, password: nexusPassword )
       }
     }
