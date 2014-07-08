@@ -17,7 +17,7 @@ by default, will produce an output text file, named `jmh-output.txt`, in the pro
 ## How to choose a specific benchmark ##
 
 By default, the benchmarkJmh task will run all benchmarks in the sourceSet. Sometimes this is undesirable, when you  
-only want to run a small set of benchmarks, or a specific benchmark. You may run give the benchmarkJmh task a regex to  
+only want to run a small set of benchmarks, or a specific benchmark. You may give the benchmarkJmh task a regular expression to  
 match a specific benchmark or group of benchmarks with the -regexp option.
 
 ```
