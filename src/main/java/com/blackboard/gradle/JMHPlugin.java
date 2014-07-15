@@ -31,6 +31,8 @@ public class JMHPlugin implements Plugin<Project> {
   private static final String RUNTIME_BENCHMARK_NAME = "benchmarkRuntime";
   private static final String JMH_CONFIGURATION_NAME = "jmh";
 
+  private static final String GRADLE_TASK_GROUP = "performance";
+
   protected Project project;
 
   public void apply(Project project) {
@@ -73,6 +75,7 @@ public class JMHPlugin implements Plugin<Project> {
 
   private void defineBenchmarkJmhTask() {
     Task benchmarkJmhTask = project.getTasks().create(BENCHMARK_JMH_TASK_NAME, BenchmarkJmhTask.class);
+    benchmarkJmhTask.setGroup(GRADLE_TASK_GROUP);
     benchmarkJmhTask.setDescription("Runs JMH benchmark tasks");
     benchmarkJmhTask.dependsOn(project.getTasks().getByName("compileJava"));
     benchmarkJmhTask.dependsOn(project.getTasks().getByName("compileBenchmarkJava"));
