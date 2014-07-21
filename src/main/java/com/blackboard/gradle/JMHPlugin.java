@@ -78,6 +78,7 @@ public class JMHPlugin implements Plugin<Project> {
     benchmarkJmhTask.setGroup(GRADLE_TASK_GROUP);
     benchmarkJmhTask.setDescription("Runs JMH benchmark tasks");
     benchmarkJmhTask.dependsOn(project.getTasks().getByName("compileJava"));
+    benchmarkJmhTask.dependsOn(project.getTasks().getByName("processBenchmarkResources"));
     benchmarkJmhTask.dependsOn(project.getTasks().getByName("compileBenchmarkJava"));
   }
 

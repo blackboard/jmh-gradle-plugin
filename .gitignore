@@ -5,3 +5,7 @@ build
 *.iws
 out/
 gradle.properties
+/bin
+.classpath
+.project
+.settings
