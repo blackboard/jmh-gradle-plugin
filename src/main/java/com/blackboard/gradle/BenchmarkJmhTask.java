@@ -38,8 +38,6 @@ public class BenchmarkJmhTask extends DefaultTask {
     jexec.setClasspath(fcClasspath);
     //Sends arguments defined in the gradle syntax of -P to the JMH runner. Example: -P-o="/my_path/text.txt"
     jexec.setArgs(processJmhArgs());
-    //Sets the JVM specific args.
-    jexec.setJvmArgs(processJVMargs());
     jexec.exec();
   }
 
@@ -52,18 +50,6 @@ public class BenchmarkJmhTask extends DefaultTask {
    */
   public void setExtraJvmArgs(String extraJvmArgs) {
     this.extraJvmArgs = extraJvmArgs;
-  }
-
-  private ArrayList<String> processJVMargs() {
-    ArrayList<String> jvmArgs = new ArrayList<>();
-    String jvmProp = (String) this.getProject().getProperties().get("-jvmArgs");
-    if (null != jvmProp) {
-      jvmArgs.addAll(Arrays.asList(jvmProp.split(" ")));
-    }
-    if (null != extraJvmArgs) {
-      jvmArgs.addAll(Arrays.asList(extraJvmArgs.split(" ")));
-    }
-    return jvmArgs;
   }
 
   private ArrayList<String> processJmhArgs() {
@@ -80,9 +66,6 @@ public class BenchmarkJmhTask extends DefaultTask {
     * my own manipulation of those arguments.) */
     props.remove("-o");
     props.remove("help");
-    props.remove("-jvmArgs");
-    props.remove("-jvmArgsAppend");
-    props.remove("-jvmArgsPrepend");
     props.remove("-regexp");
     for (String prop : props) {
       toJmhRunner.add(prop);
