@@ -11,7 +11,7 @@ A gradle plugin designed to run JMH benchmarks associated with a project. This p
  gdl benchmarkJmh
 ```
 
-This task, by default, will run all JMH benchmarks found in the src/benchmark/java/... folder, and,
+This task, by default, will run all JMH benchmarks found in the src/benchmark/java/... folder, and
 again, by default, will produce an output text file, named `jmh-output.txt`, in the project build directory.  
 
 ## How to choose a specific benchmark ##
@@ -27,12 +27,22 @@ gdl benchmarkJmh -P-regexp=".*SomeSpecificBenchmarkName.*"
 It is important to include the first .* and last .* around the name, as JMH generates several supporting class files  
 per benchmark class. In general, if your benchmark class is MyBenchmark.java, a regex of .*MyBenchmark.* will run that benchmark.
 
-### Where to put benchmarks ###
-The JMH Gradle plugin uses the standard gradle sourceSet layout for managing the location of its source-files. Therefore,
-all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*
+### Where to put your benchmarks ###
+The JMH Gradle plugin uses the standard gradle JavaPlugin sourceSet layout for managing the location of its source-files. Therefore,
+all JMH benchmarks for your project, must be placed in *src/benchmark/java/...*  
+
+```
+src
+ |-benchmark
+   |-java
+     |-<your package folder structure here>  
+                     |- <MyBenchmarkNumberOne.java>
+                     |- <MyBenchmarkNumberTwo.java>
+                     |- ...
+```
 
 
-### Using the plugin on an existing Blackboard project ###
+### Adding the plugin on an existing Blackboard project ###
 The plugin is located in maven.pd.local and is currently included as part of the Blackboard Common plugin. If you are working  
 on a blackboard project, you already have access to the benchmarkJmh task, and don't have to do anything.
 
@@ -54,6 +64,7 @@ buildscript {
 }
     apply plugin: com.blackboard.gradle.JMHPlugin
 ```
+
 ### Command Line Options ###
 Command line options are specified as gradle project parameters, prefaced with -P.
 To see which parameters are accepted by JMH, run
@@ -61,25 +72,35 @@ To see which parameters are accepted by JMH, run
 ```gdl benchmarkJmh -Phelp```
 
 All the commands that JMH supports can be specified in this manner. (Not all commands have been tested, your mileage may vary)
+
+
+> Any options specified on the command line will overwrite those specified from a JMH annotation.  
+
+
 For example, specifying the name of the output file can be done by doing the following:
 
 `
 gdl benchmarkJmh -P-o="different_name.txt"
 `
 
->Caution, the output file option just changes the name, not the directory of the output file.
+#### Using JMH's -jvmArgs option ####
 
-Multiple options may be specified:
+` gdl benchmarkJmh -P-jvmArgs="-XX:-PrintGCDetails -XX:-TraceClassLoading"`
+
+The above command has instructed the jmh plugin to pass the PrintGCDetails and TraceClassLoading options to the forked
+processes.  Take notice of the quotation marks around the specified options.
+
+#### Multiple types of options may be specified: ####
 
 `gdl benchmarkJmh -P-wi=3 -P-i=2 -P-o="different_name.txt"`
 
 
-In this case, the number of warmup iterations be test has been changed to 3,  
+In the above case, the number of warm-up iterations be test has been changed to 3,  
 the number of measurement iterations have been changed to 2,
 and the output of the tests is going to a file named `different_name.txt`  
 
+`gdl benchmarkJmh -P-i=2 -P-wf=1 -P-wi=1 -P-jvmArgs="-XX:-PrintGCDetails -XX:-TraceClassLoading"`
+
 ### Recommendations for Ease of Use ###
-Try to define all your benchmark iteration, warmpup and measurement information in the benchmark sourcefile itself, using the  
-provided JMH annotations. The annotations are much easier to read than command line options. Keep in mind, that the command line  
-options are more of a convenience than to be used for complete configuration.  
-Any options specified on the command line will overwrite those specified from a JMH annotation.  
+Try to define all your benchmark iteration, warmp-up and measurement information in the benchmark source-file itself, using the  
+provided JMH annotations. The annotations are much easier to read than command line options.
