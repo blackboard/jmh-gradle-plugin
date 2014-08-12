@@ -54,23 +54,24 @@ public class JMHPlugin implements Plugin<Project> {
     SourceSet testSourceSet = sourceSets.getByName(SourceSet.TEST_SOURCE_SET_NAME);
 
     ConfigurationContainer configurations = project.getConfigurations();
-    benchmarkSourceSet.setCompileClasspath(project.files(mainSourceSet.getOutput(), testSourceSet.getOutput(), configurations.getByName(COMPILE_BENCHMARK_NAME)));
-    benchmarkSourceSet.setRuntimeClasspath(project.files(mainSourceSet.getOutput(), testSourceSet.getOutput(), benchmarkSourceSet.getOutput(), configurations.getByName(RUNTIME_BENCHMARK_NAME)));
+    benchmarkSourceSet.setCompileClasspath(project.files(mainSourceSet.getOutput(), testSourceSet.getOutput(),
+        configurations.getByName(COMPILE_BENCHMARK_NAME)));
+    benchmarkSourceSet.setRuntimeClasspath(project.files(mainSourceSet.getOutput(), testSourceSet.getOutput(),
+        benchmarkSourceSet.getOutput(), configurations.getByName(RUNTIME_BENCHMARK_NAME)));
   }
 
   private void configureConfigurations() {
     project.getRepositories().add(project.getRepositories().mavenCentral());
+
     ConfigurationContainer configurations = project.getConfigurations();
     Configuration benchmarkCompile = configurations.getByName("benchmarkCompile");
-    benchmarkCompile.extendsFrom(configurations.getByName(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME));
-
     Configuration jmh = configurations.create(JMH_CONFIGURATION_NAME);
+
     DependencyHandler dependencies = project.getDependencies();
     dependencies.add(JMH_CONFIGURATION_NAME, "org.openjdk.jmh:jmh-core:" + JMH_VERSION);
     dependencies.add(JMH_CONFIGURATION_NAME, "org.openjdk.jmh:jmh-generator-annprocess:" + JMH_VERSION);
-    for (Dependency dependency : jmh.getDependencies()) {
-      benchmarkCompile.getDependencies().add(dependency);
-    }
+
+    benchmarkCompile.extendsFrom(jmh , configurations.getByName(JavaPlugin.TEST_COMPILE_CONFIGURATION_NAME));
   }
 
   private void defineBenchmarkJmhTask() {
@@ -82,7 +83,7 @@ public class JMHPlugin implements Plugin<Project> {
     benchmarkJmhTask.dependsOn(project.getTasks().getByName("compileBenchmarkJava"));
   }
 
-  /**
+  /*
    * Add IDE support for benchmarks in test scopes if the IntelliJ or Eclipse plugins are available.
    */
   private void configureIDESupport(final JavaPluginConvention javaPluginConvention) {
