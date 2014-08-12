@@ -12,11 +12,11 @@ A gradle plugin designed to run JMH benchmarks associated with a project. This p
 ```
 
 This task, by default, will run all JMH benchmarks found in the src/benchmark/java/... folder, and,
-by default, will produce an output text file, named `jmh-output.txt`, in the project build directory.
+again, by default, will produce an output text file, named `jmh-output.txt`, in the project build directory.  
 
 ## How to choose a specific benchmark ##
 
-By default, the benchmarkJmh task will run all benchmarks in the sourceSet. Sometimes this is undesirable, when you  
+The benchmarkJmh task will run all benchmarks in the sourceSet, but sometimes this is undesirable, such as when you  
 only want to run a small set of benchmarks, or a specific benchmark. You may give the benchmarkJmh task a regular expression to  
 match a specific benchmark or group of benchmarks with the -regexp option.
 
@@ -39,7 +39,7 @@ on a blackboard project, you already have access to the benchmarkJmh task, and d
 
 ### Adding the Plugin to a non-blackboard project ###
 If you are connected to blackboard's network, adding the following buildscript block to your project under test will
-give you access to the benchmarkJmh task, by installing the necessary artifacts to your local maven repository.
+give you access to the benchmarkJmh task, and will install the necessary artifacts to your local maven repository.
 
 ```
 buildscript {
@@ -76,4 +76,10 @@ Multiple options may be specified:
 
 In this case, the number of warmup iterations be test has been changed to 3,  
 the number of measurement iterations have been changed to 2,
-and the output of the tests is going to a file named `different_name.txt`
+and the output of the tests is going to a file named `different_name.txt`  
+
+### Recommendations for Ease of Use ###
+Try to define all your benchmark iteration, warmpup and measurement information in the benchmark sourcefile itself, using the  
+provided JMH annotations. The annotations are much easier to read than command line options. Keep in mind, that the command line  
+options are more of a convenience than to be used for complete configuration.  
+Any options specified on the command line will overwrite those specified from a JMH annotation.  
