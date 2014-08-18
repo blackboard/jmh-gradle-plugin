@@ -65,6 +65,28 @@ buildscript {
     apply plugin: com.blackboard.gradle.JMHPlugin
 ```
 
+### Adding a dependency to a Benchmark ###
+If your benchmark relies on a third party library which is not already included in the project, you are able to specify  
+this library in the build.gradle dependency block on the ```jmh``` configuration. This allows you to specify a dependency  
+separate from your production code.
+
+For example, I could have build.gradle file that looks like the following:  
+
+```
+apply plugin: 'java'
+
+dependencies {
+   compile ('org.apache.commons:commons-lang3:3.1') { exclude group: '*', module: '*' }
+   testCompile ('junit:junit:4.11') { exclude group: '*', module: '*' }
+   testCompile ('org.jmock:jmock:2.5.1') { exclude group: '*', module: '*' }
+   
+   jmh ('org.apache.commons:commons-math3:3.3') { exclude group: '*', module: '*' }
+}
+```
+
+In this case, my the benchmark relies upon commons-math3, but I don't use it elsewhere in the project. So to enforce  
+separation of benchmark from production code, I add this dependency to the jmh configuration.
+
 ### Command Line Options ###
 Command line options are specified as gradle project parameters, prefaced with -P.
 To see which parameters are accepted by JMH, run
