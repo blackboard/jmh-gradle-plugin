@@ -6,7 +6,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.ConfigurationContainer;
-import org.gradle.api.artifacts.Dependency;
 import org.gradle.api.artifacts.dsl.DependencyHandler;
 import org.gradle.api.plugins.JavaPlugin;
 import org.gradle.api.plugins.JavaPluginConvention;
@@ -23,10 +22,9 @@ import java.util.Collection;
 import java.util.Set;
 
 public class JMHPlugin implements Plugin<Project> {
-  public static final String BENCHMARK_JMH_TASK_NAME = "benchmarkJmh";
-  public static final String BENCHMARK_SOURCESET_NAME = "benchmark";
+  private static final String BENCHMARK_JMH_TASK_NAME = "benchmarkJmh";
+  private static final String BENCHMARK_SOURCESET_NAME = "benchmark";
   private static final String JMH_VERSION = "0.9";
-
   private static final String COMPILE_BENCHMARK_NAME = "benchmarkCompile";
   private static final String RUNTIME_BENCHMARK_NAME = "benchmarkRuntime";
   private static final String JMH_CONFIGURATION_NAME = "jmh";
@@ -40,7 +38,6 @@ public class JMHPlugin implements Plugin<Project> {
     this.project.getPlugins().apply(JavaPlugin.class);
 
     JavaPluginConvention javaConvention = project.getConvention().getPlugin(JavaPluginConvention.class);
-
     configureJMHBenchmarkLocation(javaConvention);
     configureConfigurations();
     configureIDESupport(javaConvention);

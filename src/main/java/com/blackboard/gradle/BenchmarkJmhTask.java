@@ -18,7 +18,7 @@ import java.util.HashSet;
  */
 public class BenchmarkJmhTask extends DefaultTask {
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
-  private String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
+  private final String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
   private JavaExec jexec = new JavaExec();
 
   private String extraJvmArgs = null;
@@ -30,9 +30,6 @@ public class BenchmarkJmhTask extends DefaultTask {
   @TaskAction
   public void benchmarkJmh() {
     jexec.setMain(JMH_RUNNER);
-
-    /* Sets the classpath for the JMH runner. This requires the output of the benchmark sourceSet
-     * as well as the runtime-classpath of the benchmarks. */
     JavaPluginConvention jpc = this.getProject().getConvention().getPlugin(JavaPluginConvention.class);
     FileCollection fcClasspath = jpc.getSourceSets().getByName("benchmark").getRuntimeClasspath();
     jexec.setClasspath(fcClasspath);
@@ -46,21 +43,20 @@ public class BenchmarkJmhTask extends DefaultTask {
   }
 
   /**
-   * Allows you to set jvm arguments as a String. Arguments are split by the space character.
+   * Allows you to set jvm arguments as a String in a build.gradle file. Arguments are split by the space character.
    */
   public void setExtraJvmArgs(String extraJvmArgs) {
     this.extraJvmArgs = extraJvmArgs;
   }
+
 
   private ArrayList<String> processJmhArgs() {
     ArrayList<String> toJmhRunner = new ArrayList<>();
     Project pj = this.getProject();
     HashSet<String> props = new HashSet<>(pj.getProperties().keySet());
     /* Changes props to be the set-intersection of all project properties and VALID_JMH_ARGS. This gives me only the
-     * the arguments passed into the project that are JMH arguments. (As opposed to all project arguments that may
-     * exist from gradle doing its magic) */
+     * the arguments passed into the project that are JMH arguments. */
     props.retainAll(VALID_JMH_ARGS);
-
 
     /*Adds args and their values to the list to be given to JMHRunner. (Minus the help, -o, and jvmArgs properties, as I'm doing
     * my own manipulation of those arguments.) */
