@@ -28,7 +28,6 @@ public class JMHPlugin implements Plugin<Project> {
   private static final String COMPILE_BENCHMARK_NAME = "benchmarkCompile";
   private static final String RUNTIME_BENCHMARK_NAME = "benchmarkRuntime";
   private static final String JMH_CONFIGURATION_NAME = "jmh";
-
   private static final String GRADLE_TASK_GROUP = "performance";
 
   protected Project project;
