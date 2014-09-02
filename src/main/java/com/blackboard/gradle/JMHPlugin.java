@@ -24,7 +24,7 @@ import java.util.Set;
 public class JMHPlugin implements Plugin<Project> {
   private static final String BENCHMARK_JMH_TASK_NAME = "benchmarkJmh";
   private static final String BENCHMARK_SOURCESET_NAME = "benchmark";
-  private static final String JMH_VERSION = "0.9";
+  private static final String JMH_VERSION = "1.0";
   private static final String COMPILE_BENCHMARK_NAME = "benchmarkCompile";
   private static final String RUNTIME_BENCHMARK_NAME = "benchmarkRuntime";
   private static final String JMH_CONFIGURATION_NAME = "jmh";
