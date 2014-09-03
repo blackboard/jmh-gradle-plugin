@@ -42,21 +42,14 @@ src
 ```
 
 
-### Adding the plugin on an existing Blackboard project ###
-The plugin is located in maven.pd.local and is currently included as part of the Blackboard Common plugin. If you are working  
-on a blackboard project, you already have access to the benchmarkJmh task, and don't have to do anything.
+### Adding the Plugin to Your Project ###
+Checkout the source code and run the ```gdl install``` command to install the JmhPlugin to your local Maven repository.
 
-
-### Adding the Plugin to a non-blackboard project ###
-If you are connected to blackboard's network, adding the following buildscript block to your project under test will
-give you access to the benchmarkJmh task, and will install the necessary artifacts to your local maven repository.
-
+Add the following buildscript block and apply the plugin to your project's build.gradle file.
 ```
 buildscript {
     repositories {
-            maven {
-                url "http://maven.pd.local/content/repositories/snapshots"
-            }
+            mavenLocal()
        }
         dependencies {
             classpath group: 'com.blackboard.gradle', name: 'jmh-gradle-plugin', version: '1.1-SNAPSHOT'
