@@ -4,12 +4,11 @@ description 'Gradle plugin for running JMH Benchmarks'
 
 apply plugin: 'java'
 apply plugin: 'groovy'
+apply plugin: 'maven'
 apply plugin: 'jacoco'
 apply plugin: 'idea'
-apply plugin: 'errorprone'
-apply plugin: 'versions'
-apply plugin: 'maven'
 apply plugin: 'eclipse'
+apply plugin: 'com.github.ben-manes.versions'
 
 apply from: 'gradle/dependencies.gradle'
 apply from: 'gradle/idea.gradle'
@@ -24,19 +23,17 @@ dependencies {
   testCompile libraries.testlibs
 }
 
-task wrapper(type: Wrapper) { gradleVersion = '1.11' }
+task wrapper(type: Wrapper) { gradleVersion = '2.1' }
 
 defaultTasks 'build'
 
 buildscript {
   repositories {
-    maven { url 'https://github.com/ben-manes/gradle-versions-plugin/raw/mvnrepo' }
-    mavenCentral()
+    jcenter()
   }
 
   dependencies {
-    classpath 'net.ltgt.gradle:gradle-errorprone-plugin:0.0.3'
-    classpath 'com.github.ben-manes:gradle-versions-plugin:0.5-beta-2'
+    classpath 'com.github.ben-manes:gradle-versions-plugin:0.5'
   }
 }
 

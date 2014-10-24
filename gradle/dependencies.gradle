@@ -4,11 +4,12 @@ ext {
 }
 
 libraries.spock = [
-  'org.spockframework:spock-core:0.7-groovy-1.8',
-  'cglib:cglib-nodep:3.1'
+  'org.spockframework:spock-core:0.7-groovy-2.0',
+  'cglib:cglib-nodep:3.1',
+  'org.codehaus.groovy:groovy-all:2.3.6'
 ]
 
-libraries.guavatest = 'com.google.guava:guava-testlib:17.0'
+libraries.guavatest = 'com.google.guava:guava-testlib:18.0'
 
 libraries.testlibs = [
     libraries.spock,

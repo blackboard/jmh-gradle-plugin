@@ -19,7 +19,6 @@ import java.util.HashSet;
 public class BenchmarkJmhTask extends DefaultTask {
   private static final String JMH_RUNNER = "org.openjdk.jmh.Main";
   private final String defaultOutputFile = String.valueOf(getProject().getBuildDir()) + File.separator + "jmh-output.txt";
-  private JavaExec jexec = new JavaExec();
 
   private String extraJvmArgs = null;
 
@@ -29,6 +28,7 @@ public class BenchmarkJmhTask extends DefaultTask {
 
   @TaskAction
   public void benchmarkJmh() {
+    JavaExec jexec = getProject().getTasks().create("benchmarkJmhExec", JavaExec.class);
     jexec.setMain(JMH_RUNNER);
     JavaPluginConvention jpc = this.getProject().getConvention().getPlugin(JavaPluginConvention.class);
     FileCollection fcClasspath = jpc.getSourceSets().getByName("benchmark").getRuntimeClasspath();

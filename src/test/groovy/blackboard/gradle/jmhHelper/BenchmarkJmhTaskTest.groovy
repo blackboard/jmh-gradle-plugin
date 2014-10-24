@@ -35,7 +35,7 @@ class BenchmarkJmhTaskTest {
   @Test
   public void testHelpArg() {
     project.apply plugin: 'jmh'
-    project.setProperty("help", "");
+    project.getExtensions().add("help", "")
     task.benchmarkJmh();
   }
 
