@@ -1,5 +1,5 @@
 group 'com.blackboard.gradle'
-version '1.2-SNAPSHOT'
+version '1.2'
 description 'Gradle plugin for running JMH Benchmarks'
 
 apply plugin: 'java'
